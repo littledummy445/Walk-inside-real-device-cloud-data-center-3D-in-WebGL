@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Infinite Enterprise Data Center Lab</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0b0f19;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* --- CLOUD PLATFORM DASHBOARD INTERFACE --- */
+        #dashboard-view {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            background-color: #0f1423;
+            color: #ffffff;
+            z-index: 50;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .dash-header {
+            height: 50px;
+            background-color: #0a0d16;
+            border-bottom: 1px solid #1e2640;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .brand-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 15px;
+            color: #ffffff;
+        }
+        .brand-logo-area span { color: #00ffcc; }
+        .nav-links { display: flex; gap: 20px; font-size: 13px; color: #a0aec0; }
+        .nav-links .active { color: #ffffff; font-weight: bold; }
+        .btn-sales {
+            background-color: #11aa33;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .dash-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        .dash-sidebar {
+            width: 220px;
+            background-color: #0d1220;
+            border-right: 1px solid #1e2640;
+            display: flex;
+            flex-direction: column;
+            padding: 15px 0;
+        }
+        .sidebar-grp-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4a5568;
+            padding: 10px 20px 5px 20px;
+            font-weight: 700;
+        }
+        .sidebar-item {
+            padding: 10px 20px;
+            font-size: 13px;
+            color: #a0aec0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #1a2238;
+            color: #00ffcc;
+        }
+        .os-sublist {
+            padding-left: 35px;
+            font-size: 12px;
+            color: #718096;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .dash-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background-color: #111625;
+        }
+        .content-header-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #1e2640;
+            padding-bottom: 12px;
+        }
+        .content-header-title span { font-size: 13px; color: #718096; font-weight: normal; }
+        
+        .device-columns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 15px;
+        }
+        .device-card-row {
+            background-color: #181f33;
+            border: 1px solid #232d4b;
+            border-radius: 6px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .device-card-row:hover {
+            border-color: #00ffcc;
+            background-color: #1d263f;
+        }
+        .device-info-node { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; }
+        .device-info-node .star-icon { color: #a0aec0; }
+        .device-card-row:hover .star-icon { color: #ffcc00; }
+        .device-badge-spec {
+            font-size: 11px;
+            color: #718096;
+            background-color: #0d1220;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .device-badge-spec.special-selection {
+            color: #00ffcc;
+            border: 1px solid rgba(0,255,204,0.3);
+        }
+
+        /* --- IMMERSIVE INTERACTIVE CAMERA VIEWPORT WRAPPER --- */
+        #phone-shell {
+            display: none;
+            width: 100%;
+            height: 100%;
+            max-width: 100vw;
+            max-height: 100vh;
+            background-color: #000000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-left-bar {
+            width: 10%;
+            height: 100%;
+            background-color: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            padding: 20px 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 10;
+        }
+        .lens-aperture {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #090d16;
+            border: 2px solid #1a2233;
+            box-shadow: inset 0 0 5px #0044ff;
+        }
+        .left-icon {
+            color: #ffffff;
+            font-size: 16px;
+            opacity: 0.85;
+            cursor: pointer;
+        }
+        .left-icon:hover { color: #00ffcc; }
+
+        #canvas-container {
+            width: 80%;
+            height: 100%;
+            position: absolute;
+            left: 10%;
+            top: 0;
+            background-color: #010102;
+        }
+
+        .camera-right-bar {
+            width: 10%;
+            height: 100%;
+            background-color: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 10;
+        }
+        .right-top-icons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            width: 100%;
+        }
+        .matrix-toggle {
+            width: 20px;
+            height: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            cursor: pointer;
+        }
+        .matrix-dot { width: 4px; height: 4px; background-color: #fff; border-radius: 50%; }
+        
+        .shutter-outer {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 4px solid #000;
+            outline: 3px solid #ffffff;
+            background-color: #ffffff;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .shutter-outer:active { transform: scale(0.92); }
+
+        .btn-end-session {
+            background-color: #e53e3e;
+            color: #ffffff;
+            border: none;
+            width: 80%;
+            padding: 6px 0;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+        .btn-rotate-node {
+            background-color: #232d4b;
+            color: #00ffcc;
+            border: 1px solid #32416c;
+            width: 80%;
+            padding: 6px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-rotate-node:active { background-color: #101626; }
+
+        .mode-pillar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .mode-text {
+            color: #888888;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .mode-text.active { color: #00ffcc; }
+
+        .gallery-preview {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #11aa33, #0066ff);
+        }
+
+        .viewport-controls {
+            position: absolute;
+            right: 15px;
+            top: 35%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 15;
+        }
+        .zoom-node {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.65);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .zoom-node.active {
+            color: #00ffcc;
+            border-color: #00ffcc;
+        }
+
+        #hud-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            color: rgba(255,255,255,0.9);
+            font-size: 10px;
+            font-family: monospace;
+            pointer-events: none;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 6px 12px;
+            border-radius: 4px;
+            border-left: 2px solid #00ffcc;
+            max-width: 85%;
+        }
+
+        #gamepad-container {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none; 
+            z-index: 25;
+        }
+        .dpad { display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: auto; }
+        .dpad-row { display: flex; gap: 4px; }
+        .action-pad { display: flex; flex-direction: column; gap: 6px; pointer-events: auto; margin-right: 20px; }
+        .gamepad-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: background 0.1s;
+        }
+        .gamepad-btn:active {
+            background: rgba(0, 255, 204, 0.55);
+            border-color: #00ffcc;
+            color: #000;
+        }
+        .action-btn { width: 54px; height: 30px; font-size: 9px; border-radius: 15px; font-weight: bold; }
+        #btn-jump { background: rgba(0, 255, 204, 0.15); border-color: rgba(0, 255, 204, 0.4); color: #00ffcc; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <!-- --- DEVICE CLOUD PLATFORM MANAGEMENT CONSOLE --- -->
+    <div id="dashboard-view">
+        <div class="dash-header">
+            <div class="brand-logo-area">🌐 <span>Device Infrastructure</span> Workspace</div>
+            <div class="nav-links">
+                <div class="active">App Live Control</div>
+                <div>Automate Matrix</div>
+                <div>System Products ▾</div>
+            </div>
+            <div class="btn-sales">Contact Support</div>
+        </div>
+        
+        <div class="dash-body">
+            <div class="dash-sidebar">
+                <div class="sidebar-grp-title">Device Infrastructure Clusters</div>
+                <div class="sidebar-item">★ Active Favourites (12/12)</div>
+                <div class="sidebar-item">🕒 Recent Connection Logs</div>
+                
+                <div class="sidebar-item active" id="sb-ios">🍎 iOS Hardware Arrays</div>
+                <div class="os-sublist" id="ios-sublist-nodes">
+                    <div>• iPhone 18 Pro Max</div>
+                    <div>• iPhone 17 Pro Max</div>
+                    <div>• iPhone 16 Pro</div>
+                </div>
+                <div class="sidebar-item" id="sb-android">🤖 Android Terminal Nodes</div>
+                <div class="os-sublist" id="android-sublist-nodes" style="display: none;">
+                    <div>• Galaxy S26 Ultra</div>
+                    <div>• Pixel 11 Pro</div>
+                    <div>• OnePlus 14 Pro</div>
+                </div>
+                <div class="sidebar-item">💻 macOS Bare-Metal Farms</div>
+            </div>
+
+            <div class="dash-content">
+                <div class="content-header-title" id="dash-grid-headline">iOS Core Testing Terminals <span>(Click any hardware item to dynamically compile 1 of 20 random environment configurations)</span></div>
+                <div class="device-columns-grid" id="device-container-hook"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- --- 3D INTERACTIVE VIEWPORT ENGINE OVERLAY --- -->
+    <div id="phone-shell">
+        <div class="camera-left-bar">
+            <div class="lens-aperture"></div>
+            <div class="left-icon">🌙</div>
+            <div class="left-icon">🎯</div>
+            <div class="left-icon">⚙️</div>
+            <div class="left-icon">⚡</div>
+        </div>
+
+        <div id="canvas-container">
+            <div id="hud-overlay">INITIALIZING DISTRIBUTED SERVER PIPELINE...</div>
+            
+            <div class="viewport-controls">
+                <div class="zoom-node" id="zoom-wide">0.5</div>
+                <div class="zoom-node active" id="zoom-normal">1x</div>
+                <div class="zoom-node" id="zoom-tele">2x</div>
+                <div class="zoom-node" id="btn-fullscreen">⛶</div>
+            </div>
+
+            <div id="gamepad-container">
+                <div class="dpad">
+                    <div class="gamepad-btn" id="btn-forward">▲</div>
+                    <div class="dpad-row">
+                        <div class="gamepad-btn" id="btn-left">◀</div>
+                        <div class="gamepad-btn" id="btn-backward">▼</div>
+                        <div class="gamepad-btn" id="btn-right">▶</div>
+                    </div>
+                </div>
+                
+                <div class="action-pad">
+                    <div class="gamepad-btn action-btn" id="btn-jump">JUMP</div>
+                    <div class="gamepad-btn action-btn" id="btn-up">FLY ▲</div>
+                    <div class="gamepad-btn action-btn" id="btn-down">FLY ▼</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="camera-right-bar">
+            <div class="right-top-icons">
+                <div class="matrix-toggle">
+                    <div class="matrix-dot"></div><div class="matrix-dot"></div><div class="matrix-dot"></div>
+                    <div class="matrix-dot"></div><div class="matrix-dot"></div><div class="matrix-dot"></div>
+                    <div class="matrix-dot"></div><div class="matrix-dot"></div><div class="matrix-dot"></div>
+                </div>
+                <button class="btn-rotate-node" id="btn-rotate-camera" title="Toggle Look-Inside Locked Vault Cell">🔄</button>
+                <button class="btn-end-session" id="btn-exit-session" title="Terminate hardware streaming tunnel">Exit</button>
+            </div>
+
+            <div class="shutter-outer" id="trigger-shutter"></div>
+
+            <div class="mode-pillar">
+                <div class="mode-text">VIDEO</div>
+                <div class="mode-text active">PHOTO</div>
+                <div class="mode-text">PORTRAIT</div>
+            </div>
+
+            <div class="gallery-preview"></div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, skyMesh;
+        let walkKeys = { w: false, a: false, s: false, d: false, up: false, down: false, space: false };
+        const baseWalkSpeed = 0.13;
+
+        let lookDragging = false;
+        let totalDragDistance = 0; 
+        let baseMousePos = { x: 0, y: 0 };
+        let directionalAngles = { yaw: 0, pitch: 0 };
+
+        const CHUNK_SIZE = 24; 
+        const visibleBuildingChunks = new Map();
+        let infrastructureMasterGroup, masterVaultEnclosureGroup, masterVaultEnclosureGroupB;
+        let proceduralChunkCollidables = [];
+
+        // Operational State Trackers
+        let isInsideEnclosureMode = false;
+        let currentSessionPlatform = 'ios';
+        let currentActiveConfigurationId = 0;
+        let customEnvironmentColorOverride = null;
+
+        const savedPlayerPos = new THREE.Vector3();
+        const savedPlayerAngles = { yaw: 0, pitch: 0 };
+
+        let ironRackMat, darkCableMat, smartphoneShellMat, cabinetMetalMat, backgroundWallMat;
+        let screenMat, screenEnclosureMat, screenMatApp1, screenMatApp2, screenMatApp3, screenOffMat;
+        let ledMatA, ledMatB, ledMatC, fluorescentLightMat, structuralPillarMat;
+        let pitchBlackMat, transparentGlassMat, wireMeshMat, structuralConcreteMat, galvanizedDuctMat;
+        let yellowFiberTrayMat, cracUnitMat, upsBatteryMat, wallGlassMat, metalTrussMat;
+        let tableTopMat, workbenchLegsMat, cardboardBoxMat, toolkitRedMat;
+
+        let animatedDoors = []; 
+        let clickableGatePivots = []; 
+
+        const remoteHardwareCatalog = [
+            { name: "iPhone 18 Pro Max", spec: "v18.0" },
+            { name: "iPhone 18 Pro", spec: "v18.0" },
+            { name: "iPhone 17 Pro Max", spec: "v17.1" },
+            { name: "iPhone 17 Pro", spec: "v17.0" },
+            { name: "iPhone 16 Pro Max", spec: "v16.2" },
+            { name: "iPhone 16 Pro", spec: "v16.0" },
+            { name: "iPhone 15 Pro Max", spec: "v15.1" },
+            { name: "iPhone 15 Pro", spec: "v15.0" },
+            { name: "iPhone 14 Pro Max", spec: "v14.4" },
+            { name: "iPhone 14 Plus", spec: "v14.1" },
+            { name: "iPhone 13 Pro Max", spec: "v13.6" },
+            { name: "iPhone 13 Pro", spec: "v13.5" },
+            { name: "iPhone 12 Pro", spec: "v12.4" },
+            { name: "iPhone 12 Mini", spec: "v12.0" }
+        ];
+
+        const androidHardwareCatalog = [
+            { name: "Samsung Galaxy S26 Ultra", spec: "v16.0" },
+            { name: "Google Pixel 11 Pro", spec: "v11.0" },
+            { name: "OnePlus 14 Pro", spec: "v14.0" },
+            { name: "Samsung Galaxy Z Fold 8", spec: "v8.0" },
+            { name: "Google Pixel Fold 3", spec: "v3.0" },
+            { name: "Xiaomi 16 Ultra", spec: "v16.0" },
+            { name: "Sony Xperia 1 VIII", spec: "v8.0" },
+            { name: "Motorola Edge 70 Ultra", spec: "v70.0" },
+            { name: "Asus ROG Phone 10", spec: "v10.0" },
+            { name: "OnePlus 14R Mini", spec: "v14.0" }
+        ];
+
+        const selectionConfigurationsPool = [
+            { id: 0, title: "RIG_SECTOR_ALPHA // GRID REINFORCED HALL", light: 0x00ffcc, altStart: false, layerY: 0, staticEnclosure: true, roofMount: false },
+            { id: 1, title: "RIG_SECTOR_BETA // CRIMSON CONDUIT TRAIL", light: 0xff3300, altStart: false, layerY: 0, staticEnclosure: false, roofMount: false },
+            { id: 2, title: "RIG_SECTOR_GAMMA // HIGH ALTITUDE TIER 4", light: 0x33ff33, altStart: false, layerY: 12.5, staticEnclosure: true, roofMount: false },
+            { id: 3, title: "RIG_SECTOR_DELTA // ROOF MOUNT PERIPHERAL FEED", light: 0xff00ff, altStart: false, layerY: 0, staticEnclosure: true, roofMount: true },
+            { id: 4, title: "RIG_SECTOR_EPSILON // GOLDEN AMBIENCE CORE", light: 0xffaa00, altStart: false, layerY: 4.5, staticEnclosure: true, roofMount: false },
+            { id: 5, title: "RIG_SECTOR_ZETA // SUBFLOOR BATTERY VAULT", light: 0x0088ff, altStart: true, layerY: -4.3, staticEnclosure: false, roofMount: false },
+            { id: 6, title: "RIG_SECTOR_ETA // COOLING EXHAUST TUNNEL", light: 0x00ffaa, altStart: false, layerY: -4.3, staticEnclosure: true, roofMount: false },
+            { id: 7, title: "RIG_SECTOR_THETA // DEEP INDUSTRIAL CHASSIS", light: 0xff7700, altStart: false, layerY: 0, staticEnclosure: false, roofMount: false },
+            { id: 8, title: "RIG_SECTOR_IOTA // FIXED CABINET CEILING BRACKET", light: 0x9900ff, altStart: false, layerY: 8.0, staticEnclosure: true, roofMount: true },
+            { id: 9, title: "RIG_SECTOR_KAPPA // SAFE PERIMETER ENCLOSURE", light: 0x00ffcc, altStart: false, layerY: 4.5, staticEnclosure: false, roofMount: false },
+            { id: 10, title: "RIG_SECTOR_LAMBDA // CYBER CHANNELS VERIFIED", light: 0x00ff44, altStart: false, layerY: 0, staticEnclosure: true, roofMount: false },
+            { id: 11, title: "RIG_SECTOR_MU // LOW FREQUENCY TESTING BAY", light: 0xff0055, altStart: false, layerY: -4.3, staticEnclosure: false, roofMount: false },
+            { id: 12, title: "RIG_SECTOR_NU // ROOF MOUNT BACKPLANE CONDUIT", light: 0x2288ff, altStart: false, layerY: 12.5, staticEnclosure: true, roofMount: true },
+            { id: 13, title: "RIG_SECTOR_XI // OVERHEAD DUCT VENT APERTURE", light: 0xddff00, altStart: false, layerY: 8.0, staticEnclosure: false, roofMount: false },
+            { id: 14, title: "RIG_SECTOR_OMICRON // HIGH SECURITY BACKPLANE", light: 0xff00aa, altStart: true, layerY: 0, staticEnclosure: true, roofMount: false },
+            { id: 15, title: "RIG_SECTOR_PI // SUBLEVEL VENTILATION GRID", light: 0x00ffcc, altStart: false, layerY: -4.3, staticEnclosure: false, roofMount: false },
+            { id: 16, title: "RIG_SECTOR_RHO // ENCLOSURE REAR BRACKET MATRIX", light: 0xff5500, altStart: false, layerY: 4.5, staticEnclosure: true, roofMount: true },
+            { id: 17, title: "RIG_SECTOR_SIGMA // AUTONOMOUS SCHEDULER MATRIX", light: 0xaa00ff, altStart: false, layerY: 0, staticEnclosure: false, roofMount: false },
+            { id: 18, title: "RIG_SECTOR_TAU // CONDENSED SWITCHBLADE STB", light: 0x00ff88, altStart: false, layerY: 8.0, staticEnclosure: true, roofMount: false },
+            { id: 19, title: "RIG_SECTOR_UPSILON // INTEGRATED CLEAN ROOM UNIT", light: 0xffcc00, altStart: false, layerY: 4.5, staticEnclosure: false, roofMount: false }
+        ];
+
+        window.onload = function () {
+            document.addEventListener('contextmenu', event => event.preventDefault());
+
+            buildDeviceSelectionMatrixHUD('ios');
+            setupSidebarNavigationListeners();
+            initThreeEngine();
+            initializeSharedMaterials();
+            buildSkybox();
+            buildLockedEnclosureChamber();
+            registerInteractionHandlers();
+            startMainLoop();
+        };
+
+        function buildDeviceSelectionMatrixHUD(platform) {
+            const gridContainer = document.getElementById('device-container-hook');
+            const headlineNode = document.getElementById('dash-grid-headline');
+            gridContainer.innerHTML = "";
+            
+            let selectedCatalog = remoteHardwareCatalog;
+            if (platform === 'android') {
+                selectedCatalog = androidHardwareCatalog;
+                headlineNode.innerHTML = `Android Core Testing Terminals <span>(Click any hardware item to dynamically compile 1 of 20 random environment configurations)</span>`;
+            } else {
+                headlineNode.innerHTML = `iOS Core Testing Terminals <span>(Click any hardware item to dynamically compile 1 of 20 random environment configurations)</span>`;
+            }
+
+            selectedCatalog.forEach(dev => {
+                const card = document.createElement('div');
+                card.className = "device-card-row";
+                card.innerHTML = `
+                    <div class="device-info-node">
+                        <span class="star-icon">☆</span>
+                        <div>${dev.name}</div>
+                    </div>
+                    <span class="device-badge-spec special-selection">READY ▾</span>
+                `;
+                card.addEventListener('click', () => triggerHardwareAllocation(dev, platform));
+                gridContainer.appendChild(card);
+            });
+        }
+
+        function setupSidebarNavigationListeners() {
+            const iosBtn = document.getElementById('sb-ios');
+            const androidBtn = document.getElementById('sb-android');
+            const iosSub = document.getElementById('ios-sublist-nodes');
+            const androidSub = document.getElementById('android-sublist-nodes');
+
+            iosBtn.addEventListener('click', () => {
+                iosBtn.classList.add('active');
+                androidBtn.classList.remove('active');
+                iosSub.style.display = 'block';
+                androidSub.style.display = 'none';
+                buildDeviceSelectionMatrixHUD('ios');
+            });
+
+            androidBtn.addEventListener('click', () => {
+                androidBtn.classList.add('active');
+                iosBtn.classList.remove('active');
+                androidSub.style.display = 'block';
+                iosSub.style.display = 'none';
+                buildDeviceSelectionMatrixHUD('android');
+            });
+        }
+
+        function triggerHardwareAllocation(deviceObj, platform) {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('phone-shell').style.display = 'flex';
+            
+            currentSessionPlatform = platform;
+            const selectedConfigIndex = Math.floor(Math.random() * 20);
+            currentActiveConfigurationId = selectedConfigIndex;
+            const configObj = selectionConfigurationsPool[selectedConfigIndex];
+
+            customEnvironmentColorOverride = new THREE.Color(configObj.light);
+
+            visibleBuildingChunks.forEach((chunk, cz) => {
+                clickableGatePivots = clickableGatePivots.filter(pivot => pivot.userData.chunkZ !== cz);
+                animatedDoors = animatedDoors.filter(door => door.chunkZ !== cz);
+                infrastructureMasterGroup.remove(chunk);
+                visibleBuildingChunks.delete(cz);
+            });
+            proceduralChunkCollidables = [];
+
+            if (platform === 'android') {
+                isInsideEnclosureMode = true;
+                savedPlayerPos.set(0, configObj.layerY + 0.8, 0); 
+                savedPlayerAngles.yaw = 0;
+                savedPlayerAngles.pitch = 0;
+                
+                if (configObj.roofMount) {
+                    camera.position.set(200, 198.38, 200.0);
+                    directionalAngles = { yaw: 0, pitch: Math.PI / 2 - 0.08 };
+                } else {
+                    camera.position.set(200, 199.85, 200.2);
+                    directionalAngles = { yaw: Math.PI / 4, pitch: -0.15 };
+                }
+            } else {
+                isInsideEnclosureMode = false;
+                if (configObj.altStart) {
+                    camera.position.set(8.5, configObj.layerY, 4.0);
+                } else {
+                    camera.position.set(0, configObj.layerY + 0.8, 0);
+                }
+                directionalAngles = { yaw: 0, pitch: 0 };
+            }
+            
+            camera.quaternion.setFromEuler(new THREE.Euler(directionalAngles.pitch, directionalAngles.yaw, 0, 'YXZ'));
+            
+            const overlayHUD = document.getElementById('hud-overlay');
+            if (platform === 'android') {
+                if (configObj.roofMount) {
+                    overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} // MOUNTED_ROOF_FEED // PERSPECTIVE FIXED`;
+                } else {
+                    if (configObj.staticEnclosure) {
+                        overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} // VAULT_LOCKDOWN // CELL A // FIXED PERSPECTIVE`;
+                    } else {
+                        overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} // VAULT_LOCKDOWN // CELL A // MOVEMENT UNLOCKED`;
+                    }
+                }
+            } else {
+                overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} @ ${configObj.title}`;
+            }
+            handleSyncResize();
+        }
+
+        function initThreeEngine() {
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020205);
+            scene.fog = new THREE.FogExp2(0x020205, 0.015);
+
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.05, 120);
+            camera.position.set(0, 0.8, 0); 
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            infrastructureMasterGroup = new THREE.Group();
+            scene.add(infrastructureMasterGroup);
+
+            masterVaultEnclosureGroup = new THREE.Group();
+            masterVaultEnclosureGroup.position.set(200, 200, 200);
+            scene.add(masterVaultEnclosureGroup);
+
+            masterVaultEnclosureGroupB = new THREE.Group();
+            masterVaultEnclosureGroupB.position.set(300, 300, 300);
+            scene.add(masterVaultEnclosureGroupB);
+
+            scene.add(new THREE.AmbientLight(0x242d3c, 0.7));
+        }
+
+        function createProceduralSkyboxTexture() {
+            const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, 256);
+            skyGradient.addColorStop(0, '#02020c');
+            skyGradient.addColorStop(0.5, '#05041a');
+            skyGradient.addColorStop(1, '#0e0b26');
+            ctx.fillStyle = skyGradient; ctx.fillRect(0, 0, 512, 256);
+            
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 200; i++) {
+                const sx = Math.random() * 512; const sy = Math.random() * 256;
+                const radius = Math.random() * 1.3;
+                ctx.beginPath(); ctx.arc(sx, sy, radius, 0, Math.PI * 2); ctx.fill();
+            }
+
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.12)'; ctx.lineWidth = 0.6;
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * 512, Math.random() * 256);
+                ctx.lineTo(Math.random() * 512, Math.random() * 256);
+                ctx.stroke();
+            }
+            
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+            return tex;
+        }
+
+        function buildSkybox() {
+            const skyGeo = new THREE.BoxGeometry(110, 110, 110);
+            const skyTexture = createProceduralSkyboxTexture();
+            const skyMat = new THREE.MeshBasicMaterial({ map: skyTexture, side: THREE.BackSide, fog: false });
+            skyMesh = new THREE.Mesh(skyGeo, skyMat);
+            scene.add(skyMesh);
+        }
+
+        function createHomeScreenTexture(isEnclosureMode) {
+            const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            const wallpaperGradient = ctx.createLinearGradient(0, 0, 0, 256);
+            wallpaperGradient.addColorStop(0, isEnclosureMode ? '#22083a' : '#0b1d3a');
+            wallpaperGradient.addColorStop(0.5, isEnclosureMode ? '#0c021f' : '#060f24');
+            wallpaperGradient.addColorStop(1, '#020306');
+            ctx.fillStyle = wallpaperGradient; ctx.fillRect(0, 0, 128, 256);
+            
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.12)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(64, 300, 140, 0, Math.PI, true); ctx.stroke();
+            drawMobileStatusBarHUD(ctx, isEnclosureMode);
+            
+            const vibrantAppColors = ['#ff3b30', '#34c759', '#007aff', '#ffcc00', '#af52de', '#ff9500', '#5ac8fa', '#11aa33'];
+            let appSelectorIdx = 0;
+
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 4; col++) {
+                    const iconX = 14 + col * 27; const iconY = 32 + row * 33;
+                    ctx.fillStyle = vibrantAppColors[appSelectorIdx % vibrantAppColors.length]; appSelectorIdx++;
+                    
+                    ctx.beginPath(); const radius = 4;
+                    ctx.moveTo(iconX + radius, iconY); ctx.lineTo(iconX + 18 - radius, iconY);
+                    ctx.quadraticCurveTo(iconX + 18, iconY, iconX + 18, iconY + radius);
+                    ctx.lineTo(iconX + 18, iconY + 18 - radius); 
+                    ctx.quadraticCurveTo(iconX + 18, iconY + 18, iconX + 18 - radius, iconY + 18);
+                    ctx.lineTo(iconX + radius, iconY + 18); ctx.quadraticCurveTo(iconX, iconY + 18, iconX, iconY + 18 - radius);
+                    ctx.lineTo(iconX, iconY + radius); ctx.quadraticCurveTo(iconX, iconY, iconX + radius, iconY);
+                    ctx.closePath(); ctx.fill();
+                }
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createDashboardAppTexture() {
+            const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#060a12'; ctx.fillRect(0, 0, 128, 256);
+            drawMobileStatusBarHUD(ctx, false);
+
+            ctx.fillStyle = '#11aa33'; ctx.font = 'bold 8px monospace'; ctx.fillText('• HARDWARE_CORE v6.2', 10, 35);
+            ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 1.8; ctx.beginPath();
+            ctx.moveTo(12, 85); ctx.lineTo(35, 60); ctx.lineTo(60, 95); ctx.lineTo(85, 55); ctx.lineTo(116, 75); ctx.stroke();
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createChatAppTexture() {
+            const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a0b10'; ctx.fillRect(0, 0, 128, 256);
+            drawMobileStatusBarHUD(ctx, false);
+
+            ctx.fillStyle = '#1f2430'; ctx.fillRect(0, 22, 128, 20);
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 8px sans-serif'; ctx.fillText('Private Lab Node Cluster', 10, 34);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createCameraAppTexture() {
+            const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#010101'; ctx.fillRect(0, 0, 128, 256);
+            drawMobileStatusBarHUD(ctx, false);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function drawMobileStatusBarHUD(ctx, isEnclosureMode) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.75)'; ctx.font = 'bold 8px monospace';
+            ctx.fillText('09:41', 12, 14);
+            ctx.strokeRect(98, 7, 16, 8);
+            ctx.fillStyle = isEnclosureMode ? '#ee0505' : '#00ff33'; ctx.fillRect(100, 9, 10, 4);
+        }
+
+        function initializeSharedMaterials() {
+            ironRackMat = new THREE.MeshStandardMaterial({ color: 0x363a3f, roughness: 0.35, metalness: 0.8 });
+            structuralPillarMat = new THREE.MeshStandardMaterial({ color: 0x1f2226, roughness: 0.45, metalness: 0.75 });
+            darkCableMat = new THREE.MeshStandardMaterial({ color: 0x0a0c0e, roughness: 0.65 });
+            smartphoneShellMat = new THREE.MeshStandardMaterial({ color: 0x121418, roughness: 0.25, metalness: 0.6 });
+            cabinetMetalMat = new THREE.MeshStandardMaterial({ color: 0x080a0c, roughness: 0.5, metalness: 0.7 });
+            backgroundWallMat = new THREE.MeshStandardMaterial({ color: 0x141618, roughness: 0.5, metalness: 0.5 });
+            pitchBlackMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+            fluorescentLightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            
+            screenOffMat = new THREE.MeshStandardMaterial({ color: 0x010103, roughness: 0.25, metalness: 0.85, side: THREE.FrontSide });
+            
+            structuralConcreteMat = new THREE.MeshStandardMaterial({ color: 0x26292d, roughness: 0.85, metalness: 0.1 });
+            galvanizedDuctMat = new THREE.MeshStandardMaterial({ color: 0x687077, roughness: 0.25, metalness: 0.8 });
+            transparentGlassMat = new THREE.MeshStandardMaterial({ color: 0x060c14, roughness: 0.05, metalness: 0.95, transparent: true, opacity: 0.35 });
+            wallGlassMat = new THREE.MeshStandardMaterial({ color: 0x3a4f5c, roughness: 0.02, metalness: 0.9, transparent: true, opacity: 0.2, side: THREE.DoubleSide });
+            metalTrussMat = new THREE.MeshStandardMaterial({ color: 0x22252a, roughness: 0.3, metalness: 0.85 });
+
+            yellowFiberTrayMat = new THREE.MeshStandardMaterial({ color: 0xcca010, roughness: 0.4, metalness: 0.2 });
+            cracUnitMat = new THREE.MeshStandardMaterial({ color: 0x4f545a, roughness: 0.4, metalness: 0.5 });
+            upsBatteryMat = new THREE.MeshStandardMaterial({ color: 0x2d3135, roughness: 0.6, metalness: 0.4 });
+
+            tableTopMat = new THREE.MeshStandardMaterial({ color: 0x505560, roughness: 0.5, metalness: 0.1 });
+            workbenchLegsMat = new THREE.MeshStandardMaterial({ color: 0x1c1e22, roughness: 0.3, metalness: 0.7 });
+            cardboardBoxMat = new THREE.MeshStandardMaterial({ color: 0xb58c56, roughness: 0.9, metalness: 0.0 });
+            toolkitRedMat = new THREE.MeshStandardMaterial({ color: 0xb91c1c, roughness: 0.4, metalness: 0.6 });
+
+            const texCanvas = document.createElement('canvas'); texCanvas.width = 64; texCanvas.height = 64;
+            const texCtx = texCanvas.getContext('2d'); texCtx.clearRect(0, 0, 64, 64);
+            texCtx.strokeStyle = 'rgba(95, 110, 130, 0.75)'; texCtx.lineWidth = 1.8;
+            texCtx.beginPath(); texCtx.moveTo(0, 32); texCtx.lineTo(32, 0); texCtx.lineTo(64, 32); texCtx.lineTo(32, 64); texCtx.lineTo(0, 32); texCtx.stroke();
+
+            const proceduralGridTex = new THREE.CanvasTexture(texCanvas);
+            proceduralGridTex.wrapS = THREE.RepeatWrapping; proceduralGridTex.wrapT = THREE.RepeatWrapping; proceduralGridTex.repeat.set(1, 2.5); 
+
+            wireMeshMat = new THREE.MeshStandardMaterial({
+                map: proceduralGridTex, alphaMap: proceduralGridTex, transparent: true, roughness: 0.2, metalness: 0.85, side: THREE.DoubleSide
+            });
+
+            const deviceHomeTextureNormal = createHomeScreenTexture(false);
+            const deviceHomeTextureEnclosure = createHomeScreenTexture(true);
+            const appTex1 = createDashboardAppTexture();
+            const appTex2 = createChatAppTexture();
+            const appTex3 = createCameraAppTexture();
+
+            screenMat = new THREE.MeshStandardMaterial({ map: deviceHomeTextureNormal, emissiveMap: deviceHomeTextureNormal, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.62, roughness: 0.15 });
+            screenEnclosureMat = new THREE.MeshStandardMaterial({ map: deviceHomeTextureEnclosure, emissiveMap: deviceHomeTextureEnclosure, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.65, roughness: 0.15 });
+            screenMatApp1 = new THREE.MeshStandardMaterial({ map: appTex1, emissiveMap: appTex1, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.7, roughness: 0.15 });
+            screenMatApp2 = new THREE.MeshStandardMaterial({ map: appTex2, emissiveMap: appTex2, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.68, roughness: 0.15 });
+            screenMatApp3 = new THREE.MeshStandardMaterial({ map: appTex3, emissiveMap: appTex3, color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.72, roughness: 0.15 });
+
+            ledMatA = new THREE.MeshStandardMaterial({ color: 0x00ff33, emissive: 0x00ff33, emissiveIntensity: 1.8 });
+            ledMatB = new THREE.MeshStandardMaterial({ color: 0x0088ff, emissive: 0x0088ff, emissiveIntensity: 1.8 });
+            ledMatC = new THREE.MeshStandardMaterial({ color: 0xee0505, emissive: 0xee0505, emissiveIntensity: 1.8 });
+        }
+
+        function buildLockedEnclosureChamber() {
+            populateVaultGroup(masterVaultEnclosureGroup, 200);
+            populateVaultGroup(masterVaultEnclosureGroupB, 300);
+        }
+
+        function populateVaultGroup(group, baseIndex) {
+            const containerMesh = new THREE.Mesh(new THREE.BoxGeometry(3.6, 3.6, 3.6), pitchBlackMat);
+            group.add(containerMesh);
+
+            const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.6, 0.08), cabinetMetalMat);
+            doorFrame.position.set(0, 0, -1.75); doorFrame.rotation.y = 0; group.add(doorFrame);
+
+            const doorGlass = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 0.04), transparentGlassMat);
+            doorGlass.position.set(0, 0, -1.75); group.add(doorGlass);
+
+            const bracketBase = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.15, 8), ironRackMat);
+            bracketBase.position.set(0, -1.72, 0); group.add(bracketBase);
+            const bracketArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.4, 8), galvanizedDuctMat);
+            bracketArm.position.set(0, -1.5, 0); group.add(bracketArm);
+
+            const ledSphereGeo = new THREE.SphereGeometry(0.022, 4, 4);
+            for (let lx = -1.3; lx <= 1.3; lx += 0.45) {
+                for (let ly = -1.2; ly <= 1.2; ly += 0.4) {
+                    if (Math.abs(lx) < 0.6 && ly < 0.8 && ly > -0.8) continue;
+                    const wallLED = new THREE.Mesh(ledSphereGeo, (ly > 0) ? ledMatA : ledMatB);
+                    wallLED.position.set(lx, ly, 1.74); group.add(wallLED);
+                }
+            }
+
+            const clusterLayouts = [
+                { x: -1.7, y: 0.3, z: -0.4, rotY: Math.PI / 2, idx: baseIndex + 1 }, 
+                { x: -1.7, y: -0.5, z: 0.6, rotY: Math.PI / 2, idx: baseIndex + 5 },
+                { x: 1.7, y: 0.1, z: -0.1, rotY: -Math.PI / 2, idx: baseIndex + 9 }, 
+                { x: 0.4, y: 0.5, z: 1.7, rotY: Math.PI, idx: baseIndex + 12 },
+                { x: -0.5, y: -0.3, z: 1.7, rotY: Math.PI, idx: baseIndex + 16 }
+            ];
+
+            clusterLayouts.forEach(layout => {
+                const pGroup = new THREE.Group(); pGroup.position.set(layout.x, layout.y, layout.z); pGroup.rotation.y = layout.rotY;
+                buildTestingSmartphoneNode(pGroup, layout.idx, true); group.add(pGroup);
+            });
+
+            const cableGeo1 = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 3.6, 8), darkCableMat);
+            cableGeo1.rotation.z = Math.PI / 2; cableGeo1.position.set(0, 1.82, 0); group.add(cableGeo1);
+
+            const cableGeo2 = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 3.6, 8), darkCableMat);
+            cableGeo2.rotation.z = Math.PI / 2; cableGeo2.position.set(0, 1.82, 0.4); group.add(cableGeo2);
+        }
+
+        function updateInfiniteLaboratoryMatrix(playerZ) {
+            if (isInsideEnclosureMode) return; 
+            const currentChunkIndexZ = Math.floor((playerZ + CHUNK_SIZE / 2) / CHUNK_SIZE);
+            const visibilityRadius = 2; const activeKeys = new Set();
+
+            for (let r = -visibilityRadius; r <= visibilityRadius; r++) {
+                const cz = currentChunkIndexZ + r; activeKeys.add(cz);
+                if (!visibleBuildingChunks.has(cz)) { buildAndMountAccessibleChunk(cz); }
+            }
+
+            for (const [cz, chunkGroupObj] of visibleBuildingChunks.entries()) {
+                if (!activeKeys.has(cz)) {
+                    clickableGatePivots = clickableGatePivots.filter(pivot => pivot.userData.chunkZ !== cz);
+                    animatedDoors = animatedDoors.filter(door => door.chunkZ !== cz);
+                    infrastructureMasterGroup.remove(chunkGroupObj);
+                    proceduralChunkCollidables = proceduralChunkCollidables.filter(c => c.chunkZ !== cz);
+                    visibleBuildingChunks.delete(cz);
+                }
+            }
+        }
+
+        function buildAndMountAccessibleChunk(cz) {
+            const chunkGroup = new THREE.Group(); const centerZ = cz * CHUNK_SIZE;
+            const datacenterWidth = 80; 
+
+            // Concrete Foundations Floor and Roof
+            const floorMesh = new THREE.Mesh(new THREE.PlaneGeometry(datacenterWidth, CHUNK_SIZE), structuralConcreteMat);
+            floorMesh.rotation.x = -Math.PI / 2; floorMesh.position.set(0, -6.0, centerZ); chunkGroup.add(floorMesh);
+
+            const chunkGrid = new THREE.GridHelper(datacenterWidth, 12, 0x181d26, 0x0a0c12); chunkGrid.position.set(0, -5.99, centerZ); chunkGroup.add(chunkGrid);
+
+            const roofMesh = new THREE.Mesh(new THREE.PlaneGeometry(datacenterWidth, CHUNK_SIZE), structuralConcreteMat);
+            roofMesh.rotation.x = Math.PI / 2; roofMesh.position.set(0, 15.0, centerZ); chunkGroup.add(roofMesh);
+
+            // Outer Perimeter Facility Containment Shell Walls
+            const wallLeftBase = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4.0, CHUNK_SIZE), structuralConcreteMat);
+            wallLeftBase.position.set(-datacenterWidth/2, -4.0, centerZ); chunkGroup.add(wallLeftBase);
+            const wallLeftTop = new THREE.Mesh(new THREE.BoxGeometry(0.2, 5.0, CHUNK_SIZE), structuralConcreteMat);
+            wallLeftTop.position.set(-datacenterWidth/2, 12.5, centerZ); chunkGroup.add(wallLeftTop);
+            const wallLeftGlass = new THREE.Mesh(new THREE.BoxGeometry(0.1, 11.0, CHUNK_SIZE), wallGlassMat);
+            wallLeftGlass.position.set(-datacenterWidth/2, 4.5, centerZ); chunkGroup.add(wallLeftGlass);
+
+            const wallRightBase = new THREE.Mesh(new THREE.BoxGeometry(0.2, 4.0, CHUNK_SIZE), structuralConcreteMat);
+            wallRightBase.position.set(datacenterWidth/2, -4.0, centerZ); chunkGroup.add(wallRightBase);
+            const wallRightTop = new THREE.Mesh(new THREE.BoxGeometry(0.2, 5.0, CHUNK_SIZE), structuralConcreteMat);
+            wallRightTop.position.set(datacenterWidth/2, 12.5, centerZ); chunkGroup.add(wallRightTop);
+            const wallRightGlass = new THREE.Mesh(new THREE.BoxGeometry(0.1, 11.0, CHUNK_SIZE), wallGlassMat);
+            wallRightGlass.position.set(datacenterWidth/2, 4.5, centerZ); chunkGroup.add(wallRightGlass);
+
+            // --- STAGING ROOM PARTITION WALL ENCLOSURE ---
+            const partitionWallX = 21.0;
+            const partWallFront = new THREE.Mesh(new THREE.BoxGeometry(0.25, 21.0, 8.5), backgroundWallMat);
+            partWallFront.position.set(partitionWallX, 4.5, centerZ - 7.75); chunkGroup.add(partWallFront);
+            proceduralChunkCollidables.push({ chunkZ: cz, minX: partitionWallX - 0.15, minY: -6.0, minZ: centerZ - 12.0, maxX: partitionWallX + 0.15, maxY: 15.0, maxZ: centerZ - 3.5 });
+
+            const partWallRear = new THREE.Mesh(new THREE.BoxGeometry(0.25, 21.0, 8.5), backgroundWallMat);
+            partWallRear.position.set(partitionWallX, 4.5, centerZ + 7.75); chunkGroup.add(partWallRear);
+            proceduralChunkCollidables.push({ chunkZ: cz, minX: partitionWallX - 0.15, minY: -6.0, minZ: centerZ + 3.5, maxX: partitionWallX + 0.15, maxY: 15.0, maxZ: centerZ + 12.0 });
+
+            // Segmented lintel panel header over staging entrance threshold door
+            const partWallHeader = new THREE.Mesh(new THREE.BoxGeometry(0.25, 15.0, 7.0), backgroundWallMat);
+            partWallHeader.position.set(partitionWallX, 7.5, centerZ); chunkGroup.add(partWallHeader);
+
+            // --- PRODUCTION SERVER CABINETS POSITIONED DIRECTLY OUTSIDE FENCE CAGE ---
+            [-16.5, 16.5].forEach(extraRackX => {
+                const cabinetRowBlock = new THREE.Mesh(new THREE.BoxGeometry(1.6, 12.0, 7.0), cabinetMetalMat);
+                cabinetRowBlock.position.set(extraRackX, 0.0, centerZ - 4.5); chunkGroup.add(cabinetRowBlock);
+                proceduralChunkCollidables.push({ chunkZ: cz, minX: extraRackX - 0.85, minY: -6.0, minZ: centerZ - 8.2, maxX: extraRackX + 0.85, maxY: 6.0, maxZ: centerZ - 0.8 });
+
+                const cabinetRowBlock2 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 12.0, 7.0), cabinetMetalMat);
+                cabinetRowBlock2.position.set(extraRackX, 0.0, centerZ + 4.5); chunkGroup.add(cabinetRowBlock2);
+                proceduralChunkCollidables.push({ chunkZ: cz, minX: extraRackX - 0.85, minY: -6.0, minZ: centerZ + 0.8, maxX: extraRackX + 0.85, maxY: 6.0, maxZ: centerZ + 8.2 });
+
+                for (let bY = -5.0; bY <= 5.0; bY += 2.0) {
+                    const statusLED = new THREE.Mesh(new THREE.SphereGeometry(0.035, 4, 4), ledMatB);
+                    statusLED.position.set(extraRackX + (extraRackX > 0 ? -0.81 : 0.81), bY, centerZ - 3.5); chunkGroup.add(statusLED);
+                    const statusLED2 = new THREE.Mesh(new THREE.SphereGeometry(0.035, 4, 4), ledMatA);
+                    statusLED2.position.set(extraRackX + (extraRackX > 0 ? -0.81 : 0.81), bY + 0.5, centerZ + 3.5); chunkGroup.add(statusLED2);
+                }
+            });
+
+            // --- STAGING & EQUIPMENT PROVISIONING ROOM ARTIFACTS ---
+            const benchX = 30.5;
+            [-5.0, 5.0].forEach(benchOffsetZ => {
+                const benchZ = centerZ + benchOffsetZ;
+                const tableTop = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.12, 5.5), tableTopMat);
+                tableTop.position.set(benchX, -4.4, benchZ); chunkGroup.add(tableTop);
+                proceduralChunkCollidables.push({ chunkZ: cz, minX: benchX - 1.65, minY: -6.0, minZ: benchZ - 2.8, maxX: benchX + 1.65, maxY: -4.2, maxZ: benchZ + 2.8 });
+
+                for (let lx = -1.4; lx <= 1.4; lx += 2.8) {
+                    for (let lz = -2.5; lz <= 2.5; lz += 5.0) {
+                        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.6), workbenchLegsMat);
+                        leg.position.set(benchX + lx, -5.2, benchZ + lz); chunkGroup.add(leg);
+                    }
+                }
+
+                // Equipment boxes and field toolkits sitting on workbench tables
+                const hardwareBox = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.6, 1.2), cardboardBoxMat);
+                hardwareBox.position.set(benchX - 0.4, -4.0, benchZ - 0.6); chunkGroup.add(hardwareBox);
+
+                const diagnosticKit = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.8), toolkitRedMat);
+                diagnosticKit.position.set(benchX + 0.5, -4.1, benchZ + 0.8); chunkGroup.add(diagnosticKit);
+            });
+
+            const stagingLight = new THREE.PointLight(new THREE.Color(0xffffff), 0.8, 16.0);
+            stagingLight.position.set(benchX, 12.0, centerZ); chunkGroup.add(stagingLight);
+            const stagingLightFixture = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.1, 0.4), fluorescentLightMat);
+            stagingLightFixture.position.set(benchX, 14.5, centerZ); chunkGroup.add(stagingLightFixture);
+
+            // Structural Crossbeams Lattices
+            const truss = new THREE.Mesh(new THREE.BoxGeometry(datacenterWidth, 0.4, 0.4), metalTrussMat); truss.position.set(0, 14.6, centerZ); chunkGroup.add(truss);
+            const trussSupportL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 21.0, 0.3), metalTrussMat); trussSupportL.position.set(-datacenterWidth/2 + 0.5, 4.5, centerZ); chunkGroup.add(trussSupportL);
+            const trussSupportR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 21.0, 0.3), metalTrussMat); trussSupportR.position.set(datacenterWidth/2 - 0.5, 4.5, centerZ); chunkGroup.add(trussSupportR);
+
+            // Overhead Ventilation Trunks
+            const leftDuct = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, CHUNK_SIZE, 12), galvanizedDuctMat); leftDuct.rotation.x = Math.PI / 2; leftDuct.position.set(-15.5, 13.2, centerZ); chunkGroup.add(leftDuct);
+            const rightDuct = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, CHUNK_SIZE, 12), galvanizedDuctMat); rightDuct.rotation.x = Math.PI / 2; rightDuct.position.set(15.5, 13.2, centerZ); chunkGroup.add(rightDuct);
+
+            // Interior Core Lighting
+            const lightBar = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.08, CHUNK_SIZE), fluorescentLightMat); lightBar.position.set(0, 14.4, centerZ); chunkGroup.add(lightBar);
+            const finalLightColor = customEnvironmentColorOverride ? customEnvironmentColorOverride : new THREE.Color(0x00ffff);
+            const pointLight = new THREE.PointLight(finalLightColor, 1.1, 24.0); pointLight.position.set(0, 10.5, centerZ); chunkGroup.add(pointLight);
+
+            const floodlightColor = new THREE.Color(0xf0f8ff); 
+            [-24.0, 24.0].forEach(floodX => {
+                const floodFixture = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.15, 8), metalTrussMat);
+                floodFixture.position.set(floodX, 14.85, centerZ); chunkGroup.add(floodFixture);
+                const floodGlowSource = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), fluorescentLightMat);
+                floodGlowSource.position.set(floodX, 14.75, centerZ); chunkGroup.add(floodGlowSource);
+                
+                const highIntensityFlood = new THREE.PointLight(floodlightColor, 2.8, 38.0, 0.7);
+                highIntensityFlood.position.set(floodX, 13.5, centerZ); chunkGroup.add(highIntensityFlood);
+            });
+
+            const cracUnitL = new THREE.Mesh(new THREE.BoxGeometry(1.4, 5.2, 5.0), cracUnitMat); cracUnitL.position.set(-34.5, -3.4, centerZ - 4.0); chunkGroup.add(cracUnitL);
+            proceduralChunkCollidables.push({ chunkZ: cz, minX: -36.0, minY: -6.0, minZ: centerZ - 6.8, maxX: -33.0, maxY: 2.0, maxZ: centerZ - 1.2 });
+
+            const fiberTrayL = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.2, CHUNK_SIZE), yellowFiberTrayMat); fiberTrayL.position.set(-5.5, 11.8, centerZ); chunkGroup.add(fiberTrayL);
+            const fiberTrayR = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.2, CHUNK_SIZE), yellowFiberTrayMat); fiberTrayR.position.set(5.5, 11.8, centerZ); chunkGroup.add(fiberTrayR);
+
+            // Multitier primary smartphone testing runways
+            for (let layer = 0; layer < 4; layer++) {
+                const layerY = layer * 4.5 - 1.0;
+                const centerCatwalk = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.15, CHUNK_SIZE), ironRackMat); centerCatwalk.position.set(0, layerY, centerZ); chunkGroup.add(centerCatwalk);
+                const crossPassageFloor = new THREE.Mesh(new THREE.BoxGeometry(21.2, 0.14, 6.0), ironRackMat); crossPassageFloor.position.set(0, layerY - 0.005, centerZ); chunkGroup.add(crossPassageFloor);
+
+                populateSegmentedChunkDevices(chunkGroup, layerY, centerZ, cz);
+                
+                let dynamicFenceHeightY = 4.5;
+                if (layer === 3) dynamicFenceHeightY = 2.5; 
+                generateChunkCagePerLevel(chunkGroup, layerY, dynamicFenceHeightY, centerZ, cz);
+
+                const tierAccentLight = new THREE.PointLight(finalLightColor, 0.5, 12.0); tierAccentLight.position.set(0, layerY + 2.8, centerZ); chunkGroup.add(tierAccentLight);
+            }
+
+            generateChunkCagePerLevel(chunkGroup, -6.0, 5.0, centerZ, cz);
+
+            const railGeo = new THREE.BoxGeometry(0.4, 21.0, 0.4);
+            [-CHUNK_SIZE/2, CHUNK_SIZE/2].forEach(localZ => {
+                const absoluteZ = centerZ + localZ;
+                [-13.8, 13.8].forEach(px => {
+                    const post = new THREE.Mesh(railGeo, structuralPillarMat); post.position.set(px, 4.5, absoluteZ); chunkGroup.add(post);
+                    proceduralChunkCollidables.push({ chunkZ: cz, minX: px - 0.25, minY: -6.0, minZ: absoluteZ - 0.25, maxX: px + 0.25, maxY: 15.0, maxZ: absoluteZ + 0.25 });
+                });
+            });
+
+            [-CHUNK_SIZE/4, CHUNK_SIZE/4].forEach(localCabinetZ => {
+                const absoluteCabinetZ = centerZ + localCabinetZ;
+                [-4.5, 4.5].forEach(bx => {
+                    const cabGroup = new THREE.Group(); cabGroup.position.set(bx, -6.0, absoluteCabinetZ);
+                    const cabFrame = new THREE.Mesh(new THREE.BoxGeometry(3.6, 4.4, 3.8), cabinetMetalMat); cabFrame.position.y = 2.2; cabGroup.add(cabFrame);
+                    const internalVoid = new THREE.Mesh(new THREE.BoxGeometry(3.3, 3.9, 3.4), pitchBlackMat); internalVoid.position.set(bx > 0 ? -0.2 : 0.2, 2.1, 0); cabGroup.add(internalVoid);
+                    const autoDoor = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.8, 3.5), transparentGlassMat); const closedLocalDoorX = bx > 0 ? -1.78 : 1.78; autoDoor.position.set(closedLocalDoorX, 2.1, 0);
+                    cabGroup.add(autoDoor);
+                    cabGroup.add(cabFrame);
+                    chunkGroup.add(cabGroup);
+
+                    animatedDoors.push({
+                        chunkZ: cz, mesh: autoDoor, baseX: closedLocalDoorX, direction: bx > 0 ? -1 : 1, worldX: bx + closedLocalDoorX, worldZ: absoluteCabinetZ
+                    });
+                    proceduralChunkCollidables.push({ chunkZ: cz, minX: bx - 1.8, minY: -6.0, minZ: absoluteCabinetZ - 1.9, maxX: bx + 1.8, maxY: -1.6, maxZ: absoluteCabinetZ + 1.9 });
+                });
+            });
+
+            infrastructureMasterGroup.add(chunkGroup); visibleBuildingChunks.set(cz, chunkGroup);
+        }
+
+        function populateSegmentedChunkDevices(chunkGroup, layerY, centerZ, cz) {
+            const panelLength = 8.5; const backingWallGeo = new THREE.BoxGeometry(0.16, 2.6, panelLength);
+            
+            const leftWallFront = new THREE.Mesh(backingWallGeo, backgroundWallMat); leftWallFront.position.set(-3.2, layerY + 1.3, centerZ - 7.75); chunkGroup.add(leftWallFront);
+            proceduralChunkCollidables.push({ chunkZ: cz, minX: -3.3, minY: layerY, minZ: centerZ - 12.0, maxX: -3.1, maxY: layerY + 2.6, maxZ: centerZ - 3.5 });
+            const leftWallRear = new THREE.Mesh(backingWallGeo, backgroundWallMat); leftWallRear.position.set(-3.2, layerY + 1.3, centerZ + 7.75); chunkGroup.add(leftWallRear);
+            proceduralChunkCollidables.push({ chunkZ: cz, minX: -3.3, minY: layerY, minZ: centerZ + 3.5, maxX: -3.1, maxY: layerY + 2.6, maxZ: centerZ + 12.0 });
+
+            const rightWallFront = new THREE.Mesh(backingWallGeo, backgroundWallMat); rightWallFront.position.set(3.2, layerY + 1.3, centerZ - 7.75); chunkGroup.add(rightWallFront);
+            proceduralChunkCollidables.push({ chunkZ: cz, minX: 3.1, minY: layerY, minZ: centerZ - 12.0, maxX: 3.3, maxY: layerY + 2.6, maxZ: centerZ - 3.5 });
+            const rightWallRear = new THREE.Mesh(backingWallGeo, backgroundWallMat); rightWallRear.position.set(3.2, layerY + 1.3, centerZ + 7.75); chunkGroup.add(rightWallRear);
+            proceduralChunkCollidables.push({ chunkZ: cz, minX: 3.1, minY: layerY, minZ: centerZ + 3.5, maxX: 3.3, maxY: layerY + 2.6, maxZ: centerZ + 12.0 });
+
+            const devicesCountZ = 6; const separationGapZ = CHUNK_SIZE / devicesCountZ; 
+
+            for (let i = 0; i < devicesCountZ; i++) {
+                const localZ = -CHUNK_SIZE/2 + (i * separationGapZ) + separationGapZ / 2; if (Math.abs(localZ) < 3.5) continue; 
+                const absoluteZ = centerZ + localZ;
+
+                const leftNode = new THREE.Group(); leftNode.position.set(-3.1, layerY + 1.3, absoluteZ); leftNode.rotation.y = Math.PI / 2;
+                const rightNode = new THREE.Group(); rightNode.position.set(3.1, layerY + 1.3, absoluteZ); rightNode.rotation.y = -Math.PI / 2;
+
+                if ((i + cz) % 3 === 0) {
+                    buildRackmountSwitchModule(leftNode); buildRackmountSwitchModule(rightNode);
+                } else {
+                    buildTestingSmartphoneNode(leftNode, i + cz, false); buildTestingSmartphoneNode(rightNode, i + cz + 2, false);
+                }
+                chunkGroup.add(leftNode); chunkGroup.add(rightNode);
+            }
+        }
+
+        function buildTestingSmartphoneNode(targetGroup, indexOffset, isEnclosureNode) {
+            const baseW = 0.9, baseH = 1.8, baseD = 0.1;
+            targetGroup.add(new THREE.Mesh(new THREE.BoxGeometry(baseW, baseH, baseD), smartphoneShellMat));
+
+            const screen = new THREE.Mesh(new THREE.PlaneGeometry(baseW - 0.08, baseH - 0.12), screenMat);
+            screen.position.z = baseD / 2 + 0.01;
+            screen.userData = { isDeviceScreen: true, indexOffset: indexOffset, isEnclosure: isEnclosureNode };
+            targetGroup.add(screen);
+
+            const pipelineSpline = [new THREE.Vector3(0, baseH / 2, 0), new THREE.Vector3(0, baseH / 2 + 0.25, -0.15), new THREE.Vector3(0, baseH / 2 + 0.45, -0.3)];
+            const dataCable = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pipelineSpline), 6, 0.025, 4, false), darkCableMat);
+            targetGroup.add(dataCable);
+
+            const ledMaterial = (indexOffset % 3 === 0) ? ledMatA : ((indexOffset % 3 === 1) ? ledMatB : ledMatC);
+            const statusIndicator = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6), ledMaterial);
+            statusIndicator.position.set(baseW / 2 - 0.1, -baseH / 2 + 0.1, baseD / 2 + 0.015);
+            targetGroup.add(statusIndicator);
+        }
+
+        function buildRackmountSwitchModule(targetGroup) {
+            const baseW = 1.8, baseH = 0.4, baseD = 0.6;
+            targetGroup.add(new THREE.Mesh(new THREE.BoxGeometry(baseW, baseH, baseD), cabinetMetalMat));
+
+            const portGeo = new THREE.BoxGeometry(0.12, 0.1, 0.02);
+            for (let px = -baseW / 2 + 0.3; px < baseW / 2 - 0.3; px += 0.25) {
+                const port = new THREE.Mesh(portGeo, ironRackMat); port.position.set(px, 0, baseD / 2 + 0.005); targetGroup.add(port);
+            }
+        }
+
+        function generateChunkCagePerLevel(chunkGroup, bottomY, heightY, centerZ, cz) {
+            const fenceOffsetSidesX = [-13.8, 13.8]; const gateApertureWidth = 5.0; const panelLength = (CHUNK_SIZE - gateApertureWidth) / 2;
+            const cagePanelGeo = new THREE.BoxGeometry(0.03, heightY, panelLength); const postGeo = new THREE.BoxGeometry(0.06, heightY, 0.06);
+
+            fenceOffsetSidesX.forEach(fx => {
+                const frontPanel = new THREE.Mesh(cagePanelGeo, wireMeshMat); frontPanel.position.set(fx, bottomY + heightY/2, centerZ - CHUNK_SIZE/2 + panelLength/2); chunkGroup.add(frontPanel);
+                proceduralChunkCollidables.push({ chunkZ: cz, minX: fx - 0.1, minY: bottomY, minZ: centerZ - CHUNK_SIZE/2, maxX: fx + 0.1, maxY: bottomY + heightY, maxZ: centerZ - CHUNK_SIZE/2 + panelLength });
+
+                const rearPanel = new THREE.Mesh(cagePanelGeo, wireMeshMat); rearPanel.position.set(fx, bottomY + heightY/2, centerZ + CHUNK_SIZE/2 - panelLength/2); chunkGroup.add(rearPanel);
+                proceduralChunkCollidables.push({ chunkZ: cz, minX: fx - 0.1, minY: bottomY, minZ: centerZ + CHUNK_SIZE/2 - panelLength, maxX: fx + 0.1, maxY: bottomY + heightY, maxZ: centerZ + CHUNK_SIZE/2 });
+
+                const postA = new THREE.Mesh(postGeo, ironRackMat); postA.position.set(fx, bottomY + heightY/2, centerZ - gateApertureWidth/2); chunkGroup.add(postA);
+                const postB = new THREE.Mesh(postGeo, ironRackMat); postB.position.set(fx, bottomY + heightY/2, centerZ + gateApertureWidth/2); chunkGroup.add(postB);
+
+                const swingingPivot = new THREE.Group(); swingingPivot.position.set(fx, bottomY, centerZ - gateApertureWidth / 2);
+                const gateMesh = new THREE.Mesh(new THREE.BoxGeometry(0.02, heightY - 0.1, gateApertureWidth - 0.1), wireMeshMat); gateMesh.position.set(0, heightY / 2, (gateApertureWidth - 0.1) / 2); swingingPivot.add(gateMesh);
+
+                swingingPivot.userData = {
+                    isGatePivot: true, chunkZ: cz, isOpen: false, targetAngle: 0, heightY: heightY,
+                    toggleGate: function() {
+                        this.isOpen = !this.isOpen; this.targetAngle = this.isOpen ? (fx > 0 ? Math.PI / 1.75 : -Math.PI / 1.75) : 0;
+                    }
+                };
+                chunkGroup.add(swingingPivot); clickableGatePivots.push(swingingPivot);
+            });
+        }
+
+        function detectEnvironmentCollision(pos) {
+            if (isInsideEnclosureMode) return false; 
+            if (Math.abs(pos.x) >= 39.65) return true; 
+            if (pos.y >= 14.85) return true;          
+
+            const standingEyeHeight = 1.65;
+            const pMinX = pos.x - 0.35; const pMaxX = pos.x + 0.35;
+            const pMinY = pos.y - standingEyeHeight; const pMaxY = pos.y + 0.1;
+            const pMinZ = pos.z - 0.35; const pMaxZ = pos.z + 0.35;
+
+            for (let i = 0; i < proceduralChunkCollidables.length; i++) {
+                const c = proceduralChunkCollidables[i];
+                if (pMaxX > c.minX && pMinX < c.maxX && pMaxY > c.minY && pMinY < c.maxY && pMaxZ > c.minZ && pMinZ < c.maxZ) return true;
+            }
+
+            for (let i = 0; i < clickableGatePivots.length; i++) {
+                const gatePivot = clickableGatePivots[i];
+                if (!gatePivot.userData.isOpen) {
+                    const gX = gatePivot.position.x; const gMinZ = gatePivot.position.z; const gMaxZ = gatePivot.position.z + 5.0;
+                    const gMinY = gatePivot.position.y; const gMaxY = gatePivot.position.y + (gatePivot.userData.heightY || 2.2);
+                    if (pMaxX > gX - 0.15 && pMinX < gX + 0.15 && pMaxY > gMinY && pMinY < gMaxY && pMaxZ > gMinZ && pMinZ < gMaxZ) return true;
+                }
+            }
+            return false;
+        }
+
+        function checkGateRaycastClick(clientX, clientY) {
+            if (isInsideEnclosureMode) return; 
+            const container = document.getElementById('canvas-container'); const boundingBoxRect = renderer.domElement.getBoundingClientRect();
+            const pointerVec = new THREE.Vector2();
+            pointerVec.x = ((clientX - boundingBoxRect.left) / container.clientWidth) * 2 - 1;
+            pointerVec.y = -((clientY - boundingBoxRect.top) / container.clientHeight) * 2 + 1;
+
+            const trackingRaycaster = new THREE.Raycaster(); trackingRaycaster.setFromCamera(pointerVec, camera);
+            const intersects = trackingRaycaster.intersectObjects(clickableGatePivots, true);
+            if (intersects.length > 0) {
+                let nodeObject = intersects[0].object;
+                while (nodeObject.parent && !nodeObject.userData.isGatePivot) { nodeObject = nodeObject.parent; }
+                if (nodeObject.userData && nodeObject.userData.isGatePivot) { nodeObject.userData.toggleGate(); }
+            }
+        }
+
+        function registerInteractionHandlers() {
+            const triggerDown = (e) => {
+                switch (e.code) {
+                    case 'KeyW': case 'ArrowUp': walkKeys.w = true; break;
+                    case 'KeyA': case 'ArrowLeft': walkKeys.a = true; break;
+                    case 'KeyS': case 'ArrowDown': walkKeys.s = true; break;
+                    case 'KeyD': case 'ArrowRight': walkKeys.d = true; break;
+                    case 'Space': walkKeys.space = true; e.preventDefault(); break;
+                }
+            };
+            const triggerUp = (e) => {
+                switch (e.code) {
+                    case 'KeyW': case 'ArrowUp': walkKeys.w = false; break;
+                    case 'KeyA': case 'ArrowLeft': walkKeys.a = false; break;
+                    case 'KeyS': case 'ArrowDown': walkKeys.s = false; break;
+                    case 'KeyD': case 'ArrowRight': walkKeys.d = false; break;
+                    case 'Space': walkKeys.space = false; break;
+                }
+            };
+            document.addEventListener('keydown', triggerDown, false); document.addEventListener('keyup', triggerUp, false);
+
+            const bindGamepadButton = (elementId, walkKeyField) => {
+                const elementNode = document.getElementById(elementId); if (!elementNode) return;
+                const startPress = (e) => { e.preventDefault(); walkKeys[walkKeyField] = true; };
+                const breakPress = (e) => { e.preventDefault(); walkKeys[walkKeyField] = false; };
+                elementNode.addEventListener('mousedown', startPress); elementNode.addEventListener('mouseup', breakPress); elementNode.addEventListener('mouseleave', breakPress);
+                elementNode.addEventListener('touchstart', startPress, { passive: false }); elementNode.addEventListener('touchend', breakPress, { passive: false });
+            };
+
+            bindGamepadButton('btn-forward', 'w'); bindGamepadButton('btn-backward', 's'); bindGamepadButton('btn-left', 'a'); bindGamepadButton('btn-right', 'd');
+            bindGamepadButton('btn-up', 'up'); bindGamepadButton('btn-down', 'down'); bindGamepadButton('btn-jump', 'space');
+
+            document.getElementById('btn-rotate-camera').addEventListener('click', () => {
+                const overlayHUD = document.getElementById('hud-overlay');
+                const activeConfigObj = selectionConfigurationsPool[currentActiveConfigurationId];
+                
+                if (currentSessionPlatform === 'android') {
+                    isInsideEnclosureMode = true; 
+                    if (camera.position.x > 250) {
+                        if (activeConfigObj.roofMount) {
+                            camera.position.set(200, 198.38, 200.0);
+                            directionalAngles = { yaw: 0, pitch: Math.PI / 2 - 0.08 };
+                            overlayHUD.innerText = "HARDWARE RUNNING: MOUNTED ROOF FEED // CELL A";
+                        } else {
+                            camera.position.set(200, 199.85, 200.2);
+                            directionalAngles = { yaw: Math.PI / 4, pitch: -0.15 };
+                            overlayHUD.innerText = `HARDWARE RUNNING: LOCKED IN VAULT CELL A // ${activeConfigObj.staticEnclosure ? 'FIXED PERSPECTIVE' : 'MOVEMENT UNLOCKED'}`;
+                        }
+                    } else {
+                        if (activeConfigObj.roofMount) {
+                            camera.position.set(300, 298.38, 300.0);
+                            directionalAngles = { yaw: 0, pitch: Math.PI / 2 - 0.08 };
+                            overlayHUD.innerText = "HARDWARE RUNNING: MOUNTED ROOF FEED // CELL B";
+                        } else {
+                            camera.position.set(300, 299.85, 300.2);
+                            directionalAngles = { yaw: Math.PI / 4, pitch: -0.15 };
+                            overlayHUD.innerText = `HARDWARE RUNNING: LOCKED IN VAULT CELL B // ${activeConfigObj.staticEnclosure ? 'FIXED PERSPECTIVE' : 'MOVEMENT UNLOCKED'}`;
+                        }
+                    }
+                } else {
+                    isInsideEnclosureMode = !isInsideEnclosureMode;
+                    if (isInsideEnclosureMode) {
+                        savedPlayerPos.copy(camera.position); 
+                        savedPlayerAngles.yaw = directionalAngles.yaw; 
+                        savedPlayerAngles.pitch = directionalAngles.pitch;
+                        
+                        camera.position.set(200, 199.85, 200.2);
+                        directionalAngles = { yaw: Math.PI / 4, pitch: -0.15 };
+                        
+                        if (activeConfigObj.staticEnclosure) {
+                            overlayHUD.innerText = "VAULT_LOCKDOWN // FIXED PERSPECTIVE CORE // MOVEMENT DISABLED";
+                        } else {
+                            overlayHUD.innerText = "VAULT_LOCKDOWN // ENCLOSED CORE UNLOCKED // PERSPECTIVE ISOLATED";
+                        }
+                    } else {
+                        camera.position.copy(savedPlayerPos); 
+                        directionalAngles.yaw = savedPlayerAngles.yaw; 
+                        directionalAngles.pitch = savedPlayerAngles.pitch;
+                        
+                        overlayHUD.innerText = `HARDWARE RUNNING: CONNECTED @ ${activeConfigObj.title}`;
+                    }
+                }
+                camera.quaternion.setFromEuler(new THREE.Euler(directionalAngles.pitch, directionalAngles.yaw, 0, 'YXZ'));
+            });
+
+            document.getElementById('btn-exit-session').addEventListener('click', () => {
+                document.getElementById('phone-shell').style.display = 'none';
+                document.getElementById('dashboard-view').style.display = 'flex';
+                isInsideEnclosureMode = false; 
+            });
+
+            document.getElementById('btn-fullscreen').addEventListener('click', () => {
+                const browserDocumentElement = document.documentElement; 
+                if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    if (browserDocumentElement.requestFullscreen) browserDocumentElement.requestFullscreen();
+                } else {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                }
+            });
+
+            const viewFrame = document.getElementById('canvas-container');
+            viewFrame.addEventListener('mousedown', (e) => {
+                if (e.target.closest('#gamepad-container')) return;
+                lookDragging = true; totalDragDistance = 0; baseMousePos = { x: e.clientX, y: e.clientY };
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!lookDragging) return;
+                let dx = e.clientX - baseMousePos.x; let dy = e.clientY - baseMousePos.y; totalDragDistance += Math.abs(dx) + Math.abs(dy);
+                directionalAngles.yaw -= dx * 0.003; directionalAngles.pitch -= dy * 0.003;
+                directionalAngles.pitch = Math.max(-Math.PI / 2.3, Math.min(Math.PI / 2.3, directionalAngles.pitch));
+                camera.quaternion.setFromEuler(new THREE.Euler(directionalAngles.pitch, directionalAngles.yaw, 0, 'YXZ'));
+                baseMousePos = { x: e.clientX, y: e.clientY };
+            });
+
+            document.addEventListener('mouseup', (e) => { 
+                if (lookDragging && totalDragDistance < 5) checkGateRaycastClick(e.clientX, e.clientY); lookDragging = false; 
+            });
+
+            viewFrame.addEventListener('touchstart', (e) => {
+                if (e.target.closest('#gamepad-container')) return;
+                if (e.touches.length === 1) { lookDragging = true; totalDragDistance = 0; baseMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }
+            }, { passive: true });
+
+            viewFrame.addEventListener('touchmove', (e) => {
+                if (!lookDragging || e.touches.length === 0) return;
+                let dx = e.touches[0].clientX - baseMousePos.x; let dy = e.touches[0].clientY - baseMousePos.y; totalDragDistance += Math.abs(dx) + Math.abs(dy);
+                directionalAngles.yaw -= dx * 0.005; directionalAngles.pitch -= dy * 0.005;
+                directionalAngles.pitch = Math.max(-Math.PI / 2.3, Math.min(Math.PI / 2.3, directionalAngles.pitch));
+                camera.quaternion.setFromEuler(new THREE.Euler(directionalAngles.pitch, directionalAngles.yaw, 0, 'YXZ'));
+                baseMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+
+            viewFrame.addEventListener('touchend', (e) => { 
+                if (lookDragging && totalDragDistance < 5 && e.changedTouches.length > 0) checkGateRaycastClick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+                lookDragging = false; 
+            });
+
+            document.getElementById('zoom-wide').addEventListener('click', () => updateCameraLensFOV(75, 'zoom-wide'));
+            document.getElementById('zoom-normal').addEventListener('click', () => updateCameraLensFOV(60, 'zoom-normal'));
+            document.getElementById('zoom-tele').addEventListener('click', () => updateCameraLensFOV(35, 'zoom-tele'));
+            
+            document.getElementById('trigger-shutter').addEventListener('click', () => {
+                document.getElementById('hud-overlay').innerText = "DIAGNOSTIC MATRIX DATA SNAPSHOT SAVED";
+            });
+        }
+
+        function updateCameraLensFOV(targetFov, activeId) {
+            camera.fov = targetFov; camera.updateProjectionMatrix();
+            document.querySelectorAll('.zoom-node').forEach(node => node.classList.remove('active'));
+            document.getElementById(activeId).classList.add('active');
+        }
+
+        let downwardFloatVelocityY = 0; const gravityConstant = -0.014; const standingEyeHeight = 1.65; const floorStandingHeightY = -6.0 + standingEyeHeight;     
+
+        function startMainLoop() {
+            updateInfiniteLaboratoryMatrix(camera.position.z);
+
+            function renderFrame() {
+                requestAnimationFrame(renderFrame);
+                let telemetryReadoutString = "";
+
+                const vectorForward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+                const vectorLateral = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+                vectorForward.y = 0; vectorLateral.y = 0; vectorForward.normalize(); vectorLateral.normalize();
+
+                let stepDeltaX = 0; let stepDeltaZ = 0;
+                if (walkKeys.w) { stepDeltaX += vectorForward.x * baseWalkSpeed; stepDeltaZ += vectorForward.z * baseWalkSpeed; }
+                if (walkKeys.s) { stepDeltaX -= vectorForward.x * baseWalkSpeed; stepDeltaZ -= vectorForward.z * baseWalkSpeed; }
+                if (walkKeys.a) { stepDeltaX -= vectorLateral.x * baseWalkSpeed; stepDeltaZ -= vectorLateral.z * baseWalkSpeed; }
+                if (walkKeys.d) { stepDeltaX += vectorLateral.x * baseWalkSpeed; stepDeltaZ += vectorLateral.z * baseWalkSpeed; }
+
+                const systemClockTime = performance.now() * 0.001;
+
+                if (skyMesh) { skyMesh.position.copy(camera.position); }
+
+                scene.traverse(child => {
+                    if (child.userData && child.userData.isDeviceScreen) {
+                        const ud = child.userData;
+                        const timeSeed = systemClockTime + (ud.indexOffset * 13.35);
+                        const totalCycleStates = 6; 
+                        const activeStateStep = Math.floor(timeSeed / 6.0) % totalCycleStates;
+                        
+                        if (activeStateStep === 0 || activeStateStep === 3) {
+                            child.material = ud.isEnclosure ? screenEnclosureMat : screenMat;
+                        } else if (activeStateStep === 1) {
+                            child.material = screenMatApp1;
+                        } else if (activeStateStep === 2) {
+                            child.material = screenMatApp2;
+                        } else if (activeStateStep === 4) {
+                            child.material = screenMatApp3;
+                        } else {
+                            child.material = screenOffMat; 
+                        }
+                    }
+                });
+
+                if (isInsideEnclosureMode) {
+                    const activeConfigObj = selectionConfigurationsPool[currentActiveConfigurationId];
+                    
+                    if (!activeConfigObj.staticEnclosure && !activeConfigObj.roofMount) {
+                        camera.position.x += stepDeltaX; camera.position.z += stepDeltaZ;
+                        
+                        if (currentSessionPlatform === 'android' && camera.position.x > 250) {
+                            camera.position.x = Math.max(298.5, Math.min(301.5, camera.position.x));
+                            camera.position.z = Math.max(298.5, Math.min(301.5, camera.position.z));
+                            if (walkKeys.up) camera.position.y += baseWalkSpeed * 0.85;
+                            if (walkKeys.down) camera.position.y -= baseWalkSpeed * 0.85;
+                            camera.position.y = Math.max(298.4, Math.min(301.6, camera.position.y));
+                        } else {
+                            camera.position.x = Math.max(198.5, Math.min(201.5, camera.position.x));
+                            camera.position.z = Math.max(198.5, Math.min(201.5, camera.position.z));
+                            if (walkKeys.up) camera.position.y += baseWalkSpeed * 0.85;
+                            if (walkKeys.down) camera.position.y -= baseWalkSpeed * 0.85;
+                            camera.position.y = Math.max(198.4, Math.min(301.6, camera.position.y));
+                        }
+                    } else {
+                        if (currentSessionPlatform === 'android' && camera.position.x > 250) {
+                            if (activeConfigObj.roofMount) camera.position.set(300, 298.38, 300.0);
+                            else camera.position.set(300, 299.85, 300.2);
+                        } else {
+                            if (activeConfigObj.roofMount) camera.position.set(200, 198.38, 200.0);
+                            else camera.position.set(200, 199.85, 200.2);
+                        }
+                    }
+                    
+                    if (activeConfigObj.roofMount) {
+                        telemetryReadoutString = `VAULT_LOCKDOWN // CELL ${camera.position.x > 250 ? 'B' : 'A'} // MOUNTED ROOF FEED`;
+                    } else {
+                        if (activeConfigObj.staticEnclosure) {
+                            telemetryReadoutString = `VAULT_LOCKDOWN // CELL ${camera.position.x > 250 ? 'B' : 'A'} // FIXED PERSPECTIVE`;
+                        } else {
+                            telemetryReadoutString = `VAULT_LOCKDOWN // CELL ${camera.position.x > 250 ? 'B' : 'A'} // MOVEMENT UNLOCKED`;
+                        }
+                    }
+                } else {
+                    updateInfiniteLaboratoryMatrix(camera.position.z);
+
+                    if (stepDeltaX !== 0) { let testPos = camera.position.clone(); testPos.x += stepDeltaX; if (!detectEnvironmentCollision(testPos)) camera.position.x = testPos.x; }
+                    if (stepDeltaZ !== 0) { let testPos = camera.position.clone(); testPos.z += stepDeltaZ; if (!detectEnvironmentCollision(testPos)) camera.position.z = testPos.z; }
+
+                    if (walkKeys.up) { let testPos = camera.position.clone(); testPos.y += baseWalkSpeed * 0.85; if (!detectEnvironmentCollision(testPos)) { camera.position.y = testPos.y; downwardFloatVelocityY = 0; } }
+                    if (walkKeys.down) { let testPos = camera.position.clone(); testPos.y -= baseWalkSpeed * 0.85; if (!detectEnvironmentCollision(testPos)) camera.position.y = testPos.y; }
+
+                    let chunkZIndex = Math.floor((camera.position.z + CHUNK_SIZE / 2) / CHUNK_SIZE); let chunkCenterZ = chunkZIndex * CHUNK_SIZE; let localZ = camera.position.z - chunkCenterZ;
+                    let designatedTargetPlaneY = floorStandingHeightY; let isOverRackShelf = false; 
+
+                    if (Math.abs(camera.position.x) <= 3.2) isOverRackShelf = true; 
+                    else if (Math.abs(localZ) <= 3.0 && Math.abs(camera.position.x) <= 13.8) isOverRackShelf = true; 
+                    else if (camera.position.x >= 21.0) isOverRackShelf = false; 
+
+                    if (isOverRackShelf) {
+                        let closestAnchorFloorY = floorStandingHeightY;
+                        for (let layer = 0; layer < 4; layer++) {
+                            let standingShelfFloorY = layer * 4.5 - 1.0 + standingEyeHeight;
+                            if (camera.position.y >= standingShelfFloorY - 0.25) closestAnchorFloorY = standingShelfFloorY;
+                        }
+                        designatedTargetPlaneY = closestAnchorFloorY;
+                    }
+
+                    const isGrounded = Math.abs(camera.position.y - designatedTargetPlaneY) < 0.05 && downwardFloatVelocityY === 0;
+                    if (walkKeys.space && isGrounded) { downwardFloatVelocityY = 0.22; }
+
+                    if (camera.position.y > designatedTargetPlaneY || downwardFloatVelocityY > 0) {
+                        if (!walkKeys.up) {
+                            downwardFloatVelocityY += gravityConstant; let testPos = camera.position.clone(); testPos.y += downwardFloatVelocityY;
+                            if (!detectEnvironmentCollision(testPos)) {
+                                camera.position.y = testPos.y;
+                                if (camera.position.y <= designatedTargetPlaneY && downwardFloatVelocityY < 0) { camera.position.y = designatedTargetPlaneY; downwardFloatVelocityY = 0; }
+                            } else { downwardFloatVelocityY = 0; }
+                        }
+                    } else if (camera.position.y < designatedTargetPlaneY) {
+                        if (!walkKeys.down) { camera.position.y = designatedTargetPlaneY; downwardFloatVelocityY = 0; }
+                        else {
+                            downwardFloatVelocityY += gravityConstant; let testPos = camera.position.clone(); testPos.y += downwardFloatVelocityY;
+                            if (!detectEnvironmentCollision(testPos)) {
+                                camera.position.y = testPos.y; if (camera.position.y <= floorStandingHeightY) { camera.position.y = floorStandingHeightY; downwardFloatVelocityY = 0; }
+                            }
+                        }
+                    }
+
+                    const rangeLimitX = camera.position.x;
+                    animatedDoors.forEach(door => {
+                        const distVecX = rangeLimitX - door.worldX; const distVecZ = camera.position.z - door.worldZ;
+                        const flatRange = Math.sqrt(distVecX * distVecX + distVecZ * distVecZ); const openPositionMaxZ = 2.0;
+                        if (flatRange < 4.8 && camera.position.y < 0.0) { if (door.mesh.position.z < openPositionMaxZ) door.mesh.position.z += 0.09; }
+                        else { if (door.mesh.position.z > 0) door.mesh.position.z -= 0.09; }
+                    });
+
+                    let currentRegion = "MAIN_AISLE_RUNWAY";
+                    if (camera.position.x >= 21.0) {
+                        currentRegion = "STAGING_&_HARDWARE_PROVISIONING_ROOM";
+                    } else if (Math.abs(camera.position.x) <= 3.2) {
+                        if (camera.position.y > 10.0) currentRegion = "FACILITY_TIER_4";
+                        else if (camera.position.y > 5.5) currentRegion = "FACILITY_TIER_3";
+                        else if (camera.position.y > 1.0) currentRegion = "FACILITY_TIER_2";
+                        else if (camera.position.y >= 0.0) currentRegion = "FACILITY_TIER_1";
+                        else currentRegion = "PLANT_SUBFLOOR_AISLE";
+                    } else if (Math.abs(camera.position.x) <= 13.8) {
+                        currentRegion = isOverRackShelf ? "CROSS_CONTAINMENT_PASSAGE" : "OPEN_AIR_FALL_BAY";
+                    } else { currentRegion = "ENTERPRISE_FLOOR_EXPANSION"; }
+
+                    const activeConfigObj = selectionConfigurationsPool[currentActiveConfigurationId];
+                    telemetryReadoutString = `DC_FULL_NET // X: ${Math.floor(camera.position.x)} Z: ${Math.floor(camera.position.z)} // REGION: ${currentRegion} // SKYBOX: VALID`;
+                }
+
+                clickableGatePivots.forEach(pivot => {
+                    const data = pivot.userData;
+                    if (Math.abs(pivot.rotation.y - data.targetAngle) > 0.01) pivot.rotation.y += (data.targetAngle - pivot.rotation.y) * 0.12;
+                });
+
+                const overlayHUD = document.getElementById('hud-overlay');
+                if (overlayHUD && !overlayHUD.innerText.includes("SNAPSHOT") && !overlayHUD.innerText.includes("HARDWARE") && !overlayHUD.innerText.includes("VAULT") && !overlayHUD.innerText.includes("FIXED") && !overlayHUD.innerText.includes("FEED")) {
+                    overlayHUD.innerText = telemetryReadoutString;
+                }
+
+                ledMatA.emissiveIntensity = (Math.floor(systemClockTime * 5.0) % 4 === 0) ? 0.2 : 1.8;
+                ledMatB.emissiveIntensity = (Math.floor(systemClockTime * 5.0 + 1) % 4 === 0) ? 0.1 : 1.6;
+                ledMatC.emissiveIntensity = (Math.floor(systemClockTime * 5.0 + 2) % 4 === 0) ? 0.3 : 2.0;
+
+                renderer.render(scene, camera);
+            }
+            renderFrame();
+        }
+
+        function handleSyncResize() {
+            const container = document.getElementById('canvas-container');
+            if (camera && renderer && container) {
+                camera.aspect = container.clientWidth / container.clientHeight; camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            }
+        }
+
+        window.addEventListener('resize', handleSyncResize);
+    </script>
+</body>
+</html>
