@@ -714,7 +714,7 @@
             camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.05, 120);
             camera.position.set(0, 0.8, 0); 
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
@@ -1408,7 +1408,55 @@
             document.getElementById('zoom-tele').addEventListener('click', () => updateCameraLensFOV(35, 'zoom-tele'));
             
             document.getElementById('trigger-shutter').addEventListener('click', () => {
-                document.getElementById('hud-overlay').innerText = "DIAGNOSTIC MATRIX DATA SNAPSHOT SAVED";
+                const shutterButton = document.getElementById('trigger-shutter');
+                const galleryPreview = document.querySelector('.gallery-preview');
+                const overlayHUD = document.getElementById('hud-overlay');
+
+                if (!renderer || !renderer.domElement) {
+                    if (overlayHUD) overlayHUD.innerText = "CAMERA ERROR // VIEWPORT NOT READY";
+                    return;
+                }
+
+                // Capture the latest rendered WebGL frame as a downloadable PNG.
+                renderer.domElement.toBlob((blob) => {
+                    if (!blob) {
+                        if (overlayHUD) overlayHUD.innerText = "CAPTURE FAILED // TRY AGAIN";
+                        return;
+                    }
+
+                    const photoUrl = URL.createObjectURL(blob);
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = photoUrl;
+                    downloadLink.download = `data-center-photo-${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    downloadLink.remove();
+
+                    // Show the most recent photo in the camera's gallery thumbnail.
+                    if (galleryPreview) {
+                        if (galleryPreview.dataset.photoUrl) {
+                            URL.revokeObjectURL(galleryPreview.dataset.photoUrl);
+                        }
+                        galleryPreview.dataset.photoUrl = photoUrl;
+                        galleryPreview.style.backgroundImage = `url("${photoUrl}")`;
+                        galleryPreview.style.backgroundSize = 'cover';
+                        galleryPreview.style.backgroundPosition = 'center';
+                        galleryPreview.title = 'Latest captured photo (click to download again)';
+                        galleryPreview.style.cursor = 'pointer';
+                        galleryPreview.onclick = () => {
+                            const again = document.createElement('a');
+                            again.href = photoUrl;
+                            again.download = `data-center-photo-${new Date().toISOString().replace(/[:.]/g, '-')}.png`;
+                            document.body.appendChild(again);
+                            again.click();
+                            again.remove();
+                        };
+                    }
+
+                    if (overlayHUD) overlayHUD.innerText = "PHOTO CAPTURED // PNG DOWNLOAD STARTED";
+                    shutterButton.style.transform = 'scale(0.92)';
+                    window.setTimeout(() => { shutterButton.style.transform = ''; }, 130);
+                }, 'image/png');
             });
         }
 
