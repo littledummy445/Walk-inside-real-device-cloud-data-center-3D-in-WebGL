@@ -1534,7 +1534,7 @@
                 indicator.textContent = flashlightEnabled ? 'FLASHLIGHT: ON (F)' : 'FLASHLIGHT: OFF (F)';
                 indicator.classList.toggle('on', flashlightEnabled);
             }
-            showDiscoveryToast(flashlightEnabled ? 'FLASHLIGHT ENABLED\\nA little extra light for the server aisles.' : 'FLASHLIGHT DISABLED');
+            showDiscoveryToast(flashlightEnabled ? 'FLASHLIGHT ENABLED\nA little extra light for the server aisles.' : 'FLASHLIGHT DISABLED');
         }
 
         function checkSecretSequences(event) {
@@ -1544,11 +1544,11 @@
                 if (secretKeyBuffer.endsWith('matrix')) {
                     document.body.classList.toggle('secret-matrix');
                     showDiscoveryToast(document.body.classList.contains('secret-matrix')
-                        ? 'RARE EASTER EGG FOUND: THE MATRIX\\nThe facility telemetry has entered green-code mode.'
+                        ? 'RARE EASTER EGG FOUND: THE MATRIX\nThe facility telemetry has entered green-code mode.'
                         : 'MATRIX EFFECT DISABLED');
                     secretKeyBuffer = '';
                 } else if (secretKeyBuffer.endsWith('browserstack')) {
-                    showDiscoveryToast('HIDDEN TRANSMISSION DECODED\\n“Every device has a story. Keep exploring.”\\n— Facility Archive #042');
+                    showDiscoveryToast('HIDDEN TRANSMISSION DECODED\n“Every device has a story. Keep exploring.”\n— Facility Archive #042');
                     secretKeyBuffer = '';
                 }
             }
@@ -1556,7 +1556,7 @@
             if (event.code === konamiSequence[konamiProgress]) {
                 konamiProgress++;
                 if (konamiProgress === konamiSequence.length) {
-                    showDiscoveryToast('ULTRA-RARE EASTER EGG UNLOCKED\\n▲ ▲ ▼ ▼ ◀ ▶ ◀ ▶ B A\\nLEGACY ADMIN OVERRIDE ACCEPTED. Nice find, explorer!');
+                    showDiscoveryToast('ULTRA-RARE EASTER EGG UNLOCKED\n▲ ▲ ▼ ▼ ◀ ▶ ◀ ▶ B A\nLEGACY ADMIN OVERRIDE ACCEPTED. Nice find, explorer!');
                     konamiProgress = 0;
                 }
             } else {
