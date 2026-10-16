@@ -1,5 +1,8 @@
 # Walk inside real device cloud data center 3D in WebGL
 
+## Screenshot of the game
+<img width="1365" height="681" alt="image" src="https://github.com/user-attachments/assets/b834c8bd-20b0-4d05-86ee-b8d4b0c70acc" />
+
 A Pen created on CodePen.
 
 Original URL: [https://codepen.io/editor/Little-Taco/pen/01a119e0-ed64-743a-9174-18fb61dab49f](https://codepen.io/editor/Little-Taco/pen/01a119e0-ed64-743a-9174-18fb61dab49f).
