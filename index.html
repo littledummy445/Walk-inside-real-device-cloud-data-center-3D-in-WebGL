@@ -708,45 +708,23 @@
             });
             proceduralChunkCollidables = [];
 
-            if (platform === 'android') {
-                isInsideEnclosureMode = true;
-                savedPlayerPos.set(0, configObj.layerY + 0.8, 0); 
-                savedPlayerAngles.yaw = 0;
-                savedPlayerAngles.pitch = 0;
-                
-                if (configObj.roofMount) {
-                    camera.position.set(200, 198.38, 200.0);
-                    directionalAngles = { yaw: 0, pitch: Math.PI / 2 - 0.08 };
-                } else {
-                    camera.position.set(200, 199.85, 200.2);
-                    directionalAngles = { yaw: Math.PI / 4, pitch: -0.15 };
-                }
+            // Always enter the actual walkable data-center hall, not the isolated
+            // demo vault cell at coordinates 200/300 (which looks like a cube).
+            isInsideEnclosureMode = false;
+            savedPlayerPos.set(0, configObj.layerY + 0.8, 0);
+            savedPlayerAngles.yaw = 0;
+            savedPlayerAngles.pitch = 0;
+
+            if (configObj.altStart) {
+                camera.position.set(8.5, configObj.layerY + 0.8, 4.0);
             } else {
-                isInsideEnclosureMode = false;
-                if (configObj.altStart) {
-                    camera.position.set(8.5, configObj.layerY, 4.0);
-                } else {
-                    camera.position.set(0, configObj.layerY + 0.8, 0);
-                }
-                directionalAngles = { yaw: 0, pitch: 0 };
+                camera.position.set(0, configObj.layerY + 0.8, 0);
             }
-            
+            directionalAngles = { yaw: 0, pitch: 0 };
             camera.quaternion.setFromEuler(new THREE.Euler(directionalAngles.pitch, directionalAngles.yaw, 0, 'YXZ'));
-            
+
             const overlayHUD = document.getElementById('hud-overlay');
-            if (platform === 'android') {
-                if (configObj.roofMount) {
-                    overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} // MOUNTED_ROOF_FEED // PERSPECTIVE FIXED`;
-                } else {
-                    if (configObj.staticEnclosure) {
-                        overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} // VAULT_LOCKDOWN // CELL A // FIXED PERSPECTIVE`;
-                    } else {
-                        overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} // VAULT_LOCKDOWN // CELL A // MOVEMENT UNLOCKED`;
-                    }
-                }
-            } else {
-                overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} @ ${configObj.title}`;
-            }
+            overlayHUD.innerText = `HARDWARE RUNNING: ${deviceObj.name} @ ${configObj.title} // FREE ROAM`;
             handleSyncResize();
         }
 
