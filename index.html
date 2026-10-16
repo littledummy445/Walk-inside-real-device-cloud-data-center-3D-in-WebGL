@@ -20,6 +20,44 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+
+        /* --- EXPLORER EXTRAS: flashlight, discovery toast and secret effects --- */
+        #discovery-toast {
+            position: absolute;
+            left: 50%;
+            top: 22%;
+            transform: translate(-50%, -10px);
+            z-index: 40;
+            max-width: min(420px, 82%);
+            padding: 14px 18px;
+            border: 1px solid rgba(0,255,204,0.7);
+            border-radius: 10px;
+            background: rgba(3, 12, 24, 0.94);
+            color: #d8fff7;
+            box-shadow: 0 0 28px rgba(0,255,204,0.22);
+            font: 12px/1.5 monospace;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+            white-space: pre-line;
+        }
+        #discovery-toast.visible { opacity: 1; transform: translate(-50%, 0); }
+        #flashlight-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 18;
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: rgba(0,0,0,.7);
+            color: #9aa4b2;
+            font: 10px monospace;
+            pointer-events: none;
+        }
+        #flashlight-indicator.on { color: #ffeaa0; border: 1px solid rgba(255,234,160,.55); }
+        body.secret-matrix #hud-overlay { color: #baffd5; border-left-color: #7dff00; }
+
         /* --- CLOUD PLATFORM DASHBOARD INTERFACE --- */
         #dashboard-view {
             display: flex;
@@ -443,6 +481,8 @@
 
         <div id="canvas-container">
             <div id="hud-overlay">INITIALIZING DISTRIBUTED SERVER PIPELINE...</div>
+            <div id="flashlight-indicator">FLASHLIGHT: OFF (F)</div>
+            <div id="discovery-toast" role="status" aria-live="polite"></div>
             
             <div class="viewport-controls">
                 <div class="zoom-node" id="zoom-wide">0.5</div>
@@ -495,7 +535,13 @@
     <script>
         let scene, camera, renderer, skyMesh;
         let walkKeys = { w: false, a: false, s: false, d: false, up: false, down: false, space: false };
-        const baseWalkSpeed = 0.13;
+        let baseWalkSpeed = 0.13;
+        let flashlight;
+        let flashlightEnabled = false;
+        let secretKeyBuffer = "";
+        let konamiProgress = 0;
+        let discoveryToastTimeout = null;
+        const konamiSequence = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"];
 
         let lookDragging = false;
         let totalDragDistance = 0; 
@@ -712,7 +758,14 @@
             scene.fog = new THREE.FogExp2(0x020205, 0.015);
 
             camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.05, 120);
-            camera.position.set(0, 0.8, 0); 
+            camera.position.set(0, 0.8, 0);
+
+            flashlight = new THREE.SpotLight(0xc8f7ff, 0, 24, Math.PI / 7, 0.45, 1.2);
+            flashlight.position.set(0, 0, 0);
+            flashlight.target.position.set(0, 0, -1);
+            camera.add(flashlight);
+            camera.add(flashlight.target);
+            scene.add(camera);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
             renderer.setSize(container.clientWidth, container.clientHeight);
@@ -1267,6 +1320,9 @@
 
         function registerInteractionHandlers() {
             const triggerDown = (e) => {
+                if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') baseWalkSpeed = 0.23;
+                if (e.code === 'KeyF' && !e.repeat) toggleFlashlight();
+                checkSecretSequences(e);
                 switch (e.code) {
                     case 'KeyW': case 'ArrowUp': walkKeys.w = true; break;
                     case 'KeyA': case 'ArrowLeft': walkKeys.a = true; break;
@@ -1276,6 +1332,7 @@
                 }
             };
             const triggerUp = (e) => {
+                if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') baseWalkSpeed = 0.13;
                 switch (e.code) {
                     case 'KeyW': case 'ArrowUp': walkKeys.w = false; break;
                     case 'KeyA': case 'ArrowLeft': walkKeys.a = false; break;
@@ -1458,6 +1515,53 @@
                     window.setTimeout(() => { shutterButton.style.transform = ''; }, 130);
                 }, 'image/png');
             });
+        }
+
+        function showDiscoveryToast(message, duration = 4200) {
+            const toast = document.getElementById('discovery-toast');
+            if (!toast) return;
+            toast.textContent = message;
+            toast.classList.add('visible');
+            if (discoveryToastTimeout) window.clearTimeout(discoveryToastTimeout);
+            discoveryToastTimeout = window.setTimeout(() => toast.classList.remove('visible'), duration);
+        }
+
+        function toggleFlashlight() {
+            flashlightEnabled = !flashlightEnabled;
+            if (flashlight) flashlight.intensity = flashlightEnabled ? 3.2 : 0;
+            const indicator = document.getElementById('flashlight-indicator');
+            if (indicator) {
+                indicator.textContent = flashlightEnabled ? 'FLASHLIGHT: ON (F)' : 'FLASHLIGHT: OFF (F)';
+                indicator.classList.toggle('on', flashlightEnabled);
+            }
+            showDiscoveryToast(flashlightEnabled ? 'FLASHLIGHT ENABLED\\nA little extra light for the server aisles.' : 'FLASHLIGHT DISABLED');
+        }
+
+        function checkSecretSequences(event) {
+            if (event.ctrlKey || event.altKey || event.metaKey) return;
+            if (event.key && event.key.length === 1 && /[a-z]/i.test(event.key)) {
+                secretKeyBuffer = (secretKeyBuffer + event.key.toLowerCase()).slice(-12);
+                if (secretKeyBuffer.endsWith('matrix')) {
+                    document.body.classList.toggle('secret-matrix');
+                    showDiscoveryToast(document.body.classList.contains('secret-matrix')
+                        ? 'RARE EASTER EGG FOUND: THE MATRIX\\nThe facility telemetry has entered green-code mode.'
+                        : 'MATRIX EFFECT DISABLED');
+                    secretKeyBuffer = '';
+                } else if (secretKeyBuffer.endsWith('browserstack')) {
+                    showDiscoveryToast('HIDDEN TRANSMISSION DECODED\\n“Every device has a story. Keep exploring.”\\n— Facility Archive #042');
+                    secretKeyBuffer = '';
+                }
+            }
+
+            if (event.code === konamiSequence[konamiProgress]) {
+                konamiProgress++;
+                if (konamiProgress === konamiSequence.length) {
+                    showDiscoveryToast('ULTRA-RARE EASTER EGG UNLOCKED\\n▲ ▲ ▼ ▼ ◀ ▶ ◀ ▶ B A\\nLEGACY ADMIN OVERRIDE ACCEPTED. Nice find, explorer!');
+                    konamiProgress = 0;
+                }
+            } else {
+                konamiProgress = event.code === konamiSequence[0] ? 1 : 0;
+            }
         }
 
         function updateCameraLensFOV(targetFov, activeId) {
