@@ -1186,6 +1186,78 @@
                 });
             });
 
+            // --- EXTRA DATA-CENTER DETAILS: safety stations, cable drums and aisle markings ---
+            // Wall-side safety stations stay outside the main walking lanes.
+            [-1, 1].forEach(side => {
+                const wallX = side * 37.8;
+                const sign = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.08, 1.05, 1.25),
+                    new THREE.MeshStandardMaterial({ color: 0x173344, roughness: 0.65, metalness: 0.25, emissive: 0x06202b })
+                );
+                sign.position.set(wallX, 7.0, centerZ + (side < 0 ? -5.5 : 5.5));
+                chunkGroup.add(sign);
+
+                const signStripe = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.095, 0.12, 0.95),
+                    new THREE.MeshBasicMaterial({ color: side < 0 ? 0x00e5ff : 0xffb000 })
+                );
+                signStripe.position.set(wallX + (side < 0 ? 0.05 : -0.05), 7.15, sign.position.z);
+                chunkGroup.add(signStripe);
+
+                // Bright red fire extinguisher with a dark nozzle, mounted low by the wall.
+                const extinguisher = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.22, 0.25, 1.05, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xd92f35, roughness: 0.42, metalness: 0.2 })
+                );
+                extinguisher.position.set(side * 36.7, -4.75, centerZ + (side < 0 ? 7.0 : -7.0));
+                chunkGroup.add(extinguisher);
+
+                const extinguisherTop = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.09, 0.12, 0.18, 8),
+                    new THREE.MeshStandardMaterial({ color: 0x333943, metalness: 0.65, roughness: 0.35 })
+                );
+                extinguisherTop.position.set(extinguisher.position.x, -4.13, extinguisher.position.z);
+                chunkGroup.add(extinguisherTop);
+            });
+
+            // Cable drums and spare hardware crates in the outer service bay.
+            [-1, 1].forEach((side, index) => {
+                const drumX = side * 28.5;
+                const drumZ = centerZ + (index === 0 ? 2.8 : -2.8);
+                const drum = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.8, 0.8, 1.15, 16),
+                    new THREE.MeshStandardMaterial({ color: 0x34465b, roughness: 0.72, metalness: 0.3 })
+                );
+                drum.rotation.z = Math.PI / 2;
+                drum.position.set(drumX, -5.05, drumZ);
+                chunkGroup.add(drum);
+
+                const drumHub = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.22, 0.22, 1.2, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xf0a52b, roughness: 0.55, metalness: 0.25 })
+                );
+                drumHub.rotation.z = Math.PI / 2;
+                drumHub.position.copy(drum.position);
+                chunkGroup.add(drumHub);
+
+                const spareCrate = new THREE.Mesh(
+                    new THREE.BoxGeometry(1.2, 1.1, 1.2),
+                    new THREE.MeshStandardMaterial({ color: 0x6d5238, roughness: 0.9 })
+                );
+                spareCrate.position.set(side * 32.0, -5.35, centerZ + (index === 0 ? -6.0 : 6.0));
+                chunkGroup.add(spareCrate);
+            });
+
+            // Yellow-and-black caution strips mark the service bay floor edges.
+            [-1, 1].forEach(side => {
+                const safetyStrip = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.18, 0.025, CHUNK_SIZE - 1.0),
+                    new THREE.MeshBasicMaterial({ color: 0xf2b632 })
+                );
+                safetyStrip.position.set(side * 20.5, -5.965, centerZ);
+                chunkGroup.add(safetyStrip);
+            });
+
             infrastructureMasterGroup.add(chunkGroup); visibleBuildingChunks.set(cz, chunkGroup);
         }
 
